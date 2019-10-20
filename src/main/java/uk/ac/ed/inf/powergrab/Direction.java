@@ -1,5 +1,6 @@
 package uk.ac.ed.inf.powergrab;
 
+// Enumerates all possible 16 directions in which the drone can fly
 public enum Direction {
 	N,
 	NNE,
