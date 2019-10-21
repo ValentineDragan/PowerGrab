@@ -55,26 +55,6 @@ public class Position {
 			return true;
 	}
 	
-	// Returns a Map<Direction, Double> containing all Directions which would reach within 0.00025 degrees of the destination.
-	// The result is sorted in terms of distance between the current position and the destination, in ascending order.
-	// If the destination is not reachable, it returns null
-	public Map<Direction, Double> reaching_directions(Position destination)
-	{
-		Map<Direction, Double> directions = new HashMap<Direction, Double>();
-		
-		for (Direction direction: Direction.values()) {
-			double dist = nextPosition(direction).getDist(destination);
-			if (dist <= 0.00025)
-				directions.put(direction, dist);
-		}
-		
-		if (!directions.isEmpty()) {
-			directions = sortByValue(directions);
-			return directions;
-		}
-		else
-			return null;
-	}
 	
 	// Returns whether or not this position lies within 0.00025 of the destination
 	public boolean inRange(Position destination)
