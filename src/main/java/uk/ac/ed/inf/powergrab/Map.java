@@ -1,5 +1,6 @@
 package uk.ac.ed.inf.powergrab;
 
+import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
@@ -9,14 +10,24 @@ import com.mapbox.geojson.*;
 // used for converting the InputStream to String
 import org.apache.commons.io.IOUtils;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.ArrayList;
   
 public class Map {
 
-	FeatureCollection feature_collection = null;
+	private FeatureCollection feature_collection = null;
+	private List<Station> stations = new ArrayList<Station>();
+	
+	// This constructor initialises the feature_collection field by extracting the Geo-JSON from the specified URL
+	// and loads a List of all Stations from the map into the stations field
+	public Map(String urlString)
+	{
+		this.loadMap(urlString);
+		this.stations = this.loadStations();
+	}
+	
 	
 	// Loads the map from the specified URL into the feature_collection field
-	public void loadMap(String mapString)
+	private void loadMap(String mapString)
 	{
 		// Read the URL
 		try 
@@ -43,24 +54,36 @@ public class Map {
 		}
 	}
 	
-	// Returns a HashMap containing the <indexes, positions> of all stations on the map
-	public HashMap<Integer, Position> getAllStations()
+	// returns a List of all Station objects contained on the map
+	private List<Station> loadStations()
 	{
-		HashMap<Integer, Position> stations = new HashMap<Integer, Position>();
+		List<Station> stations = new ArrayList<Station>();
 		
-		int index=0;
-		for (Feature feature: feature_collection.features())
+		for (Feature f: feature_collection.features())
 		{
-			Point p = (Point) feature.geometry();
-			Double lon = p.coordinates().get(0);
-			Double lat = p.coordinates().get(1);
+			String id = f.getProperty("id").getAsString();
+			double coins = f.getProperty("coins").getAsDouble();
+			Double power = f.getProperty("power").getAsDouble();
+			String symbol = f.getProperty("marker-symbol").getAsString();
+			String color = f.getProperty("marker-color").getAsString();
+			double lon = ((Point) f.geometry()).coordinates().get(0);
+			double lat = ((Point) f.geometry()).coordinates().get(1);
 			
-			Position pos = new Position(lat, lon);
-			stations.put(index, pos);
-			index += 1;
+			Station s = new Station(id, coins, power, symbol, color, lon, lat);
+			stations.add(s);
 		}
 		
 		return stations;
+	}
+	
+	public List<Station> getStations()
+	{
+		return this.stations;
+	}
+	
+	public FeatureCollection getFeatureCollection()
+	{
+		return this.feature_collection;
 	}
 	
 }
