@@ -71,9 +71,7 @@ public class Stateless extends Drone {
 			for (Station station: reachable_stations.keySet())
 			{
 				if (station.symbol.equals("danger"))
-				{
-					allDirections.remove(reachable_stations.get(station));
-				}
+					allDirections.removeIf(d -> currentPos.nextPosition(d).inRange(station.position));
 			}
 			
 			// Step 2c
@@ -81,15 +79,7 @@ public class Stateless extends Drone {
 			
 			// Step 2d
 			Direction result = null;
-			
-			
-			/*do {
-				Random rnd = new Random(this.seed);
-				result = allDirections.get(rnd.nextInt(allDirections.size()));
-				System.out.println(currentPos.latitude + " " + currentPos.longitude);
-			} while (!currentPos.nextPosition(result).inPlayArea());
-			*/
-			
+						
 			// Return random direction
 			if (!allDirections.isEmpty())
 			{
