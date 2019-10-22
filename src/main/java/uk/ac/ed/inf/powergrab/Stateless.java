@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Random;
 
 public class Stateless extends Drone {
-
-	App appManager;
 	
-	public Stateless(Position startingPos, int seed, App app) {
+	String type = "Stateless";
+	
+	public Stateless(Position startingPos, int seed) {
 		super(startingPos, seed);
-		appManager = app;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -30,35 +29,38 @@ public class Stateless extends Drone {
 	 *    
 	 *    	Otherwise:
 	 *    	2b. Exclude Directions which would reach a negative station
-	 *   	2c. From the remaining Directions, pick one at random
-	 *   	If the drone is within playArea after moving in the selected direction
-	 *   		2d. Return the chosen random Direction
-	 *   	Otherwise: Repeat from 2c
+	 *    	2c. Exclude Illegal directions (which would take you out of the play area)
+	 *   	2d. From the remaining Directions, return one at random
 	 */
 	public Direction getNextMove()
 	{
 		// Step 1a
-		List<Station> stations = appManager.getStationsByDistance(this.currentPos);
+		List<Station> stations = new ArrayList(App.getStationsByDistance(this.currentPos));
+		
+		System.out.println("Total number of stations: " + stations.size());
 		
 		// Step 1b
+		stations.removeIf(s -> currentPos.getDist(s.position) > 0.00055);
+		
+		/* ConcurrentModificationException
 		for (Station station: stations)
 		{
+			System.out.println("test");
 			if (currentPos.getDist(station.position) > 0.00055)
 				stations.remove(station);
-		}
+		}*/
 		
 		// Step 1c
 		HashMap<Station, Direction> reachable_stations = new HashMap<Station, Direction>();
 		for (Station station: stations)
 		{
-			Direction direction = appManager.directionToReach(currentPos, station.position);
+			Direction direction = App.directionToReach(currentPos, station.position);
 			if (direction != null)
 				reachable_stations.put(station, direction);
 		}
 		
 		// Step 2
 		Station best = chooseBestStation(new ArrayList<Station>(reachable_stations.keySet()));
-		
 		if (best != null)
 			// Step 2a
 			return reachable_stations.get(best);
@@ -68,26 +70,37 @@ public class Stateless extends Drone {
 			List<Direction> allDirections = new ArrayList<Direction>(Arrays.asList(Direction.values()));
 			for (Station station: reachable_stations.keySet())
 			{
-				if (station.symbol == "danger")
+				if (station.symbol.equals("danger"))
 				{
 					allDirections.remove(reachable_stations.get(station));
 				}
 			}
 			
-			// Step 2c and 2d
+			// Step 2c
+			allDirections.removeIf(d -> !currentPos.nextPosition(d).inPlayArea());
+			
+			// Step 2d
 			Direction result = null;
-			do {
+			
+			
+			/*do {
 				Random rnd = new Random(this.seed);
 				result = allDirections.get(rnd.nextInt(allDirections.size()));
+				System.out.println(currentPos.latitude + " " + currentPos.longitude);
 			} while (!currentPos.nextPosition(result).inPlayArea());
+			*/
 			
+			// Return random direction
+			if (!allDirections.isEmpty())
+			{
+				return allDirections.get(rnd.nextInt(allDirections.size()));
+			}
 			// DEBUGGING
-			if (result == null)
+			else
 			{
 				System.out.println("Stateless returns NULL in getNextMove() !!!");
 				return Direction.N;
 			}
-			return result;
 		}
 	}
 	
@@ -95,15 +108,20 @@ public class Stateless extends Drone {
 	// Given a list of stations, return the best station
 	// If power < 62.5, returns the Station with the highest power value
 	// Otherwise, returns the Station with the highest money value
+	// Returns null if there is no positive station in the list
 	public Station chooseBestStation(List<Station> stations)
 	{
+		// check that the list is not empty
+		if (stations.isEmpty())
+			return null;
+		
 		if (this.power < 62.5)
 			Collections.sort(stations, new SortByPower());
 		else
 			Collections.sort(stations, new SortByMoney());
 		
 		Station best = stations.get(stations.size() - 1);
-		if (best.symbol == "danger")
+		if (best.money <= 0)
 			return null;
 		else
 			return best;
