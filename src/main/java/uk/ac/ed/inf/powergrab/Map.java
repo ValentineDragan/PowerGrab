@@ -76,9 +76,17 @@ public class Map {
 		return stations;
 	}
 	
+	protected void updateStation(Station station, double coinsAmount, double powerAmount)
+	{
+		Station theStation = stations.get(stations.indexOf(station));
+		theStation.money -= coinsAmount;
+		theStation.power -= powerAmount;
+		
+	}
+	
 	public List<Station> getStations()
 	{
-		return this.stations;
+		return new ArrayList(this.stations);
 	}
 	
 	public FeatureCollection getFeatureCollection()
