@@ -89,9 +89,10 @@ public class Map {
 		return new ArrayList(this.stations);
 	}
 	
+	// Returns a copy of the feature_collection
 	public FeatureCollection getFeatureCollection()
 	{
-		return this.feature_collection;
+		return FeatureCollection.fromFeatures(feature_collection.features());
 	}
 	
 }

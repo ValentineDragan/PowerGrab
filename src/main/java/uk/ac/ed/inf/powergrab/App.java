@@ -2,7 +2,10 @@ package uk.ac.ed.inf.powergrab;
 
 import com.mapbox.geojson.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -19,7 +22,11 @@ public class App
 	
 	private static int moveNumber = 0;
 	
-    public static void main( String[] args )
+	private static String fileName;
+	private static PrintWriter textWriter;
+	private static PrintWriter geojsonWriter;
+	
+    public static void main( String[] args ) throws FileNotFoundException, IOException
     {
     	// load Args
     	loadArgs(args);
@@ -28,12 +35,14 @@ public class App
     	// load Map
     	map = new Map("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     	
-    	// debug_StationsByDistance(startingPos);
-    	
-    	// System.out.println(droneType == "stateless");
+    	   	
     	if (droneType.equals("stateless"))
     	{
+    		// Initialise the drone and Output files
     		Stateless theDrone = new Stateless(startingPos, seed);
+    		fileName = "Stateless-"+args[0]+"-"+args[1]+"-"+args[2];
+    		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
+    		
     		// Inspect current position
     		if (!theDrone.currentPos.inPlayArea())
     			System.out.println("Error! Illeigal starting position!");
@@ -43,16 +52,29 @@ public class App
     			while (moveNumber < 250 && theDrone.power >= 1.25)
     			{
     				moveNumber += 1;
+    				// Decide in which direction to move
     				Direction nextMove = theDrone.getNextMove();
     				
-    				System.out.println("Move " + moveNumber + ": " + nextMove);
-    				
+    				// Move the drone and charge from nearest station (if in range)
     				theDrone.move(nextMove);
     				chargeDrone(theDrone);
+    				
+    				// Write in the text file
+    				writeDroneMove(theDrone, nextMove);
+    				
+    				// DEBUGGING
+    				System.out.println("-------------------------------------");
+    				System.out.println("Move " + moveNumber + ": " + nextMove);
     			}
-    			System.out.println("Total number of coins: " + theDrone.coins);
-    			System.out.println("Total number of power: " + theDrone.power);
     		}
+    		
+			// DEBUGGING
+			System.out.println("Total number of coins: " + theDrone.coins);
+			System.out.println("Total number of power: " + theDrone.power);
+			
+			// Write drone path to geojson file
+			writeGeoJson(map.getFeatureCollection(), theDrone);
+    		textWriter.close();
     	}
     	else
     	{
@@ -63,10 +85,10 @@ public class App
     	
     	
     	
-    	
-    	// debug_printStations(map);
-    	// debug_printArgs();
-    	// debug_loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
+    	// Debugger.debug_StationsByDistance(startingPos);
+    	// Debugger.debug_printStations(map);
+    	// Debugger.debug_printArgs();
+    	// Debugger.debug_loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     		
     }
     
@@ -95,7 +117,7 @@ public class App
     		if (nearest_station.symbol.equals("danger"))
         		System.out.println("Danger! Drone charged from a negative station! id: " + nearest_station.id);
         	else if (nearest_station.power == 0 && nearest_station.money == 0)
-        		System.out.println("Warning! Dron charged from an empty station! id: " + nearest_station.id);
+        		System.out.println("Warning! Drone charged from an empty station! id: " + nearest_station.id);
         	else
         		System.out.println("Drone charged. Power: " + nearest_station.power + "; money: " + nearest_station.money + "; id: " + nearest_station.id);
     		
@@ -160,75 +182,36 @@ public class App
     	return result;
     }
     
-    
-    
-    
-	// Returns a Map<Direction, Double> containing all Directions which would reach within 0.00025 degrees of the destination.
-	// The result is sorted in terms of distance between the current position and the destination, in ascending order.
-	// If the destination is not reachable, it returns null
-    /*
-	public Map<Direction, Double> reaching_directions(Position destination)
-	{
-		Map<Direction, Double> directions = new HashMap<Direction, Double>();
-		
-		for (Direction direction: Direction.values()) {
-			double dist = nextPosition(direction).getDist(destination);
-			if (dist <= 0.00025)
-				directions.put(direction, dist);
-		}
-		
-		if (!directions.isEmpty()) {
-			directions = sortByValue(directions);
-			return directions;
-		}
-		else
-			return null;
-	}*/
-    
-
-	/* ---------------------------------------------------------- 
-	 *                    DEBUGGING FUNCTIONS
-	 * ---------------------------------------------------------- */
-    
-    
-    // Prints out all the features extracted for the given url
-    private static void debug_loadMap(String urlString)
+    // Writes a drone's move in the text file
+    private static void writeDroneMove(Drone drone, Direction direction) throws FileNotFoundException, IOException
     {
-        Map map = new Map(urlString);
-        List<Feature> features = map.getFeatureCollection().features();
-        
-        System.out.println("Number of features: " + features.size());
-        for (Feature feature: features) {
-            System.out.println(feature.toString());
-        }
+    	Position previousPos = drone.getLastMove();
+    	Position currPos = drone.getCurrentPos();
+    	textWriter.println(String.format("%f,%f,%s,%f,%f,%f,%f", previousPos.latitude, previousPos.longitude, direction,
+    					currPos.latitude, currPos.longitude, drone.coins, drone.power));	
     }
     
-    // Prints out the input arguments
-    private static void debug_printArgs()
-    {
-    	System.out.println("INPUT ARGUMENTS: \n" + date + '\n' + startingLat + '\n' + 
-    			startingLong + '\n' + seed + '\n' + droneType);
-    }
     
-    // Prints out the List of all stations from a given Map class
-    private static void debug_printStations(Map map)
+    private static void writeGeoJson(FeatureCollection feature_collection, Drone drone) throws FileNotFoundException, IOException
     {
-    	List<Station> stations = map.getStations();
+    	// Convert moveHistory to List<Point>
+    	List<Point> points = new ArrayList<Point>();
+    	for (Position position: drone.moveHistory)
+    	{
+    		Point point = Point.fromLngLat(position.longitude, position.latitude);
+    		points.add(point);
+    	}
     	
-    	System.out.println(stations.size() + " stations:");
-    	for (Station station: stations)
-    		System.out.println(station.position.latitude + " " + station.position.longitude + " " + station.money + " " + station.power);
-    
-    }
-    
-    // Prints out all Station IDs, ordered by distance from the origin
-    private static void debug_StationsByDistance(Position origin)
-    {
-   	 	List<Station> sorted_stations = getStationsByDistance(origin);
-  	
-	     System.out.println("Sorted stations: " + sorted_stations.size());
-	     for (Station station: sorted_stations) {
-	         System.out.println("dist: " + origin.getDist(station.position) + " --- station id: " + station.id);
-	     }
+    	// Create LineString
+    	LineString lineString = LineString.fromLngLats(points);
+    	
+    	// Add the lineString feature to the Feature Collection
+    	Feature lineFeature = Feature.fromGeometry(lineString);
+    	feature_collection.features().add(lineFeature);
+    	
+    	// Print it to the file
+		geojsonWriter = new PrintWriter(fileName+".geojson", "UTF-8");
+		geojsonWriter.print(feature_collection.toJson());
+		geojsonWriter.close();
     }
 }
