@@ -5,6 +5,7 @@ import com.mapbox.geojson.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -16,19 +17,100 @@ public class App
 	private static String droneType;
 	private static Map map;
 	
+	private static int moveNumber = 0;
+	
     public static void main( String[] args )
     {
+    	// load Args
     	loadArgs(args);
     	Position startingPos = new Position(startingLat, startingLong);
     	
+    	// load Map
     	map = new Map("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     	
+    	// debug_StationsByDistance(startingPos);
     	
-    	debug_StationsByDistance(startingPos);
+    	// System.out.println(droneType == "stateless");
+    	if (droneType.equals("stateless"))
+    	{
+    		Stateless theDrone = new Stateless(startingPos, seed);
+    		// Inspect current position
+    		if (!theDrone.currentPos.inPlayArea())
+    			System.out.println("Error! Illeigal starting position!");
+    		else
+    		{
+    			// Repeat until 250 moves, or insufficient energy to move
+    			while (moveNumber < 250 && theDrone.power >= 1.25)
+    			{
+    				moveNumber += 1;
+    				Direction nextMove = theDrone.getNextMove();
+    				
+    				System.out.println("Move " + moveNumber + ": " + nextMove);
+    				
+    				theDrone.move(nextMove);
+    				chargeDrone(theDrone);
+    			}
+    			System.out.println("Total number of coins: " + theDrone.coins);
+    			System.out.println("Total number of power: " + theDrone.power);
+    		}
+    	}
+    	else
+    	{
+    		Stateful theDrone = new Stateful(startingPos, seed);
+    		System.out.println("stateful drone not yet implemented!");
+    	}
+    	
+    	
+    	
+    	
+    	
     	// debug_printStations(map);
     	// debug_printArgs();
     	// debug_loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     		
+    }
+    
+    
+    // Moves the drone in the chosen direction
+    public static void makeMove(Drone drone, Direction direction)
+    {
+    	// Ensure the direction is not taking the drone outside the playArea
+    	if (!drone.currentPos.nextPosition(direction).inPlayArea())
+    		System.out.println("Illegal move! Drone would go outside the play area!");
+    	else
+    		drone.move(direction);
+    }
+    
+    
+    // Attempt to charge drone from the nearest station
+    // Will print out the result
+    public static void chargeDrone(Drone drone)
+    {
+    	List<Station> stations_sorted = getStationsByDistance(drone.currentPos);
+    	Station nearest_station = stations_sorted.get(0);
+    	
+    	// If the nearest station is within range, charge the drone
+    	if (drone.currentPos.inRange(nearest_station.position)) 
+    	{
+    		if (nearest_station.symbol.equals("danger"))
+        		System.out.println("Danger! Drone charged from a negative station! id: " + nearest_station.id);
+        	else if (nearest_station.power == 0 && nearest_station.money == 0)
+        		System.out.println("Warning! Dron charged from an empty station! id: " + nearest_station.id);
+        	else
+        		System.out.println("Drone charged. Power: " + nearest_station.power + "; money: " + nearest_station.money + "; id: " + nearest_station.id);
+    		
+    		// charge the drone
+    		double coinsChargeAmount = nearest_station.money;
+    		double powerChargeAmount = nearest_station.power;
+    		
+    		drone.coins += coinsChargeAmount;
+    		drone.power += Math.max(-drone.power, powerChargeAmount);
+    		
+    		// update the Station
+    		map.updateStation(nearest_station, coinsChargeAmount, powerChargeAmount);
+    	}
+    	else
+    		System.out.println("No station in range");
     }
     
     private static void loadArgs(String args[])
@@ -51,7 +133,7 @@ public class App
     // Returns a List of all stations, ordered by distance from the origin
     public static List<Station> getStationsByDistance(Position origin)
     {
-    	List<Station> stations_sorted = map.getStations();
+    	List<Station> stations_sorted = new ArrayList(map.getStations());
     	Collections.sort(stations_sorted, new DistanceComparator(origin));
     	return stations_sorted;
     }
@@ -59,7 +141,8 @@ public class App
 
     // Returns the direction the origin-point needs to move in order to reach within 0.00025 degrees of the destination
     // If there are multiple directions, the function returns the one that would bring it closest to the destination
-    public Direction directionToReach(Position origin, Position destination)
+    // Returns null if there are no directions that reach the destination
+    public static Direction directionToReach(Position origin, Position destination)
     {
     	Direction result = null;
     	double bestDist = Double.MAX_VALUE;
@@ -67,17 +150,14 @@ public class App
     	for (Direction direction: Direction.values())
     	{
     		double dist = origin.nextPosition(direction).getDist(destination);
-    		if (dist < bestDist)
+    		if (dist <= 0.00025 && dist < bestDist)
     		{
     			result = direction;
     			bestDist = dist;
     		}
     	}
-    	
-    	if (bestDist <= 0.00025)
-    		return result;
-    	else
-    		return null;
+    
+    	return result;
     }
     
     
