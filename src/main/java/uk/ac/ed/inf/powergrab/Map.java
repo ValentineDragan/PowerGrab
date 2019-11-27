@@ -14,20 +14,20 @@ import java.util.ArrayList;
   
 public class Map {
 
-	private FeatureCollection feature_collection = null;
-	private List<Station> stations = new ArrayList<Station>();
+	private static FeatureCollection feature_collection = null;
+	private static List<Station> stations = new ArrayList<Station>();
 	
 	// This constructor initialises the feature_collection field by extracting the Geo-JSON from the specified URL
 	// and loads a List of all Stations from the map into the stations field
-	public Map(String urlString)
+	public static void Map(String urlString)
 	{
-		this.loadMap(urlString);
-		this.stations = this.loadStations();
+		loadMap(urlString);
+		stations = loadStations();
 	}
 	
 	
 	// Loads the map from the specified URL into the feature_collection field
-	private void loadMap(String mapString)
+	private static void loadMap(String mapString)
 	{
 		// Read the URL
 		try 
@@ -45,7 +45,7 @@ public class Map {
 			// read the text
 			InputStream stream = conn.getInputStream();
 			String mapSource = IOUtils.toString(stream, StandardCharsets.UTF_8);
-			this.feature_collection = FeatureCollection.fromJson(mapSource);
+			feature_collection = FeatureCollection.fromJson(mapSource);
 		} catch ( java.net.MalformedURLException e) {
 			e.printStackTrace();
 			//System.out.println(e + " caught in Map.loadMap() \n" + "String is not a well-formed URL!");
@@ -55,7 +55,7 @@ public class Map {
 	}
 	
 	// returns a List of all Station objects contained on the map
-	private List<Station> loadStations()
+	private static List<Station> loadStations()
 	{
 		List<Station> stations = new ArrayList<Station>();
 		
@@ -76,7 +76,7 @@ public class Map {
 		return stations;
 	}
 	
-	protected void updateStation(Station station, double coinsAmount, double powerAmount)
+	protected static void updateStation(Station station, double coinsAmount, double powerAmount)
 	{
 		Station theStation = stations.get(stations.indexOf(station));
 		theStation.money -= coinsAmount;
@@ -84,13 +84,13 @@ public class Map {
 		
 	}
 	
-	public List<Station> getStations()
+	public static List<Station> getStations()
 	{
-		return new ArrayList(this.stations);
+		return new ArrayList(stations);
 	}
 	
 	// Returns a copy of the feature_collection
-	public FeatureCollection getFeatureCollection()
+	public static FeatureCollection getFeatureCollection()
 	{
 		return FeatureCollection.fromFeatures(feature_collection.features());
 	}

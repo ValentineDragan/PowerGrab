@@ -32,6 +32,7 @@ public class Stateless extends Drone {
 	 *    	2c. Exclude Illegal directions (which would take you out of the play area)
 	 *   	2d. From the remaining Directions, return one at random
 	 */
+	
 	public Direction getNextMove()
 	{
 		// Step 1a
@@ -99,7 +100,7 @@ public class Stateless extends Drone {
 	// If power < 62.5, returns the Station with the highest power value
 	// Otherwise, returns the Station with the highest money value
 	// Returns null if there is no positive station in the list
-	public Station chooseBestStation(List<Station> stations)
+	private Station chooseBestStation(List<Station> stations)
 	{
 		// check that the list is not empty
 		if (stations.isEmpty())

@@ -18,7 +18,7 @@ public class App
 	private static double startingLat, startingLong;
 	private static int seed;
 	private static String droneType;
-	private static Map map;
+	//private static Map map;
 	
 	private static int moveNumber = 0;
 	
@@ -33,7 +33,7 @@ public class App
     	Position startingPos = new Position(startingLat, startingLong);
     	
     	// load Map
-    	map = new Map("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
+    	Map.Map("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     	
     	   	
     	if (droneType.equals("stateless"))
@@ -73,13 +73,13 @@ public class App
 			System.out.println("Total number of power: " + theDrone.power);
 			
 			// Write drone path to geojson file
-			writeGeoJson(map.getFeatureCollection(), theDrone);
+			writeGeoJson(Map.getFeatureCollection(), theDrone);
     		textWriter.close();
     	}
     	else
     	{
     		Stateful theDrone = new Stateful(startingPos, seed);
-    		System.out.println("stateful drone not yet implemented!");
+    		
     	}
     	
     	
@@ -129,7 +129,7 @@ public class App
     		drone.power += Math.max(-drone.power, powerChargeAmount);
     		
     		// update the Station
-    		map.updateStation(nearest_station, coinsChargeAmount, powerChargeAmount);
+    		Map.updateStation(nearest_station, coinsChargeAmount, powerChargeAmount);
     	}
     	else
     		System.out.println("No station in range");
@@ -155,7 +155,7 @@ public class App
     // Returns a List of all stations, ordered by distance from the origin
     public static List<Station> getStationsByDistance(Position origin)
     {
-    	List<Station> stations_sorted = new ArrayList(map.getStations());
+    	List<Station> stations_sorted = new ArrayList(Map.getStations());
     	Collections.sort(stations_sorted, new DistanceComparator(origin));
     	return stations_sorted;
     }

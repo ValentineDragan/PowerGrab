@@ -25,6 +25,12 @@ public class Drone {
 		moveHistory.add(startingPos);
 	}
 	
+	// This method needs to be overridden by future implementations
+	public Direction getNextMove()
+	{
+		return null;
+	}
+	
 	public void move(Direction direction)
 	{
 		power -= 1.25;
