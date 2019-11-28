@@ -108,8 +108,7 @@ public class App
     // Will print out the result
     public static void chargeDrone(Drone drone)
     {
-    	List<Station> stations_sorted = getStationsByDistance(drone.currentPos);
-    	Station nearest_station = stations_sorted.get(0);
+    	Station nearest_station = getNearestStation(drone.currentPos);
     	
     	// If the nearest station is within range, charge the drone
     	if (drone.currentPos.inRange(nearest_station.position)) 
@@ -151,6 +150,12 @@ public class App
     	}
     }
     
+    
+    // Return the nearest station from the origin
+    public static Station getNearestStation(Position origin)
+    {
+    	return getStationsByDistance(origin).get(0);
+    }
     
     // Returns a List of all stations, ordered by distance from the origin
     public static List<Station> getStationsByDistance(Position origin)
