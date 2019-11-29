@@ -7,21 +7,51 @@ import java.util.TreeMap;
 
 public class Stateful extends Drone {
 
+	private ArrayList<Direction> plannedMoves;
+	private Position tempPos;
+	
+	
 	public Stateful(Position position, int seed) {
 		super(position, seed);
-		// TODO Auto-generated constructor stub
-		ArrayList<Station> greedyRoute = planGreedyRoute();
-		for (int i=0; i<greedyRoute.size()-1; i++)
-		{
-			ArrayList<Direction> path = pathToNextStation(greedyRoute.get(i).position, greedyRoute.get(i+1));
-		}
+		plannedMoves = planAllMoves();
 	}
 	
+	private ArrayList<Direction> planAllMoves()
+	{
+		tempPos = this.currentPos;
+		// Plan in which order we will visit the positive stations (Greedy nearest-station method)
+		ArrayList<Station> greedyRoute = planGreedyRoute();
+		
+		// For each station in the Route, plan the best path that will take us there (using an A* algorithm)
+		ArrayList<Direction> plan = new ArrayList<Direction>();
+		for (int i=0; i<greedyRoute.size(); i++)
+		{
+			ArrayList<Direction> path = getPathToNextStation(tempPos, greedyRoute.get(i));
+			plan.addAll(path);
+		}
+		System.out.println("PLANNED MOVES SIZE BEFORE FILL: " + plan.size());
+		
+		// Zig-Zag (between the last move and its inverse) until we reach 250 moves
+		int remainingMoves = 250 - plan.size();
+		Direction zag = plan.get(plan.size() - 1);
+		Direction zig = getInverseDirection(zag);
+		System.out.println("ZIG ZAG: " + zig + " " + zag);
+		
+		for (int i=0; i < remainingMoves/2; i++)
+		{
+			plan.add(zig); plan.add(zag);
+		}
+		if (plan.size() == 251)
+			plan.remove(plan.size() - 1);
+		System.out.println("PLANNED MOVES SIZE AFTER FILL: " + plan.size());
+		
+		return plan;
+	}
 	
 	@Override
 	public Direction getNextMove()
 	{
-		return null;
+		return plannedMoves.get(App.moveNumber-1);
 	}
 	
 	
@@ -32,12 +62,15 @@ public class Stateful extends Drone {
 	 * */
 	private ArrayList<Station> planGreedyRoute()
 	{
+		// Initialise empty route and starting position
 		Position currentPos = this.currentPos;
-		ArrayList<Station> remainingStations = new ArrayList<Station>(Map.getStations());
 		ArrayList<Station> plannedRoute = new ArrayList<Station>();
 		int totalEstimatedMoves = 0; // used only for debugging
+		// Initialise a list with all the positive stations
+		ArrayList<Station> remainingStations = new ArrayList<Station>(Map.getStations());
+		remainingStations.removeIf(s -> s.symbol.equals("danger"));
 		
-		// Repeat until all Stations have been added to the path
+		// Repeat until all Stations have been added to the route
 		while(!remainingStations.isEmpty())
 		{
 			Station closestStation = null;
@@ -54,7 +87,7 @@ public class Stateful extends Drone {
 				}
 			}
 			// Add the station to the path and update position. 
-			// Remove the station from the initial List so it doesn't get visited twice
+			// Remove the station from the initial list so it doesn't get added twice
 			System.out.println("Next closest station is " + minimumMoves + " moves away");
 			currentPos = closestStation.position;
 			plannedRoute.add(closestStation);
@@ -62,8 +95,7 @@ public class Stateful extends Drone {
 			
 			totalEstimatedMoves += minimumMoves; // only for debugging
 		}
-		System.out.println("Total estimated moves: " + totalEstimatedMoves);
-		
+		System.out.println("Total estimated moves: " + totalEstimatedMoves);	
 		
 		return plannedRoute;
 	}
@@ -95,7 +127,7 @@ public class Stateful extends Drone {
 	 * A* search
 	 * https://www.geeksforgeeks.org/a-search-algorithm/
 	 * */
-	private ArrayList<Direction> pathToNextStation(Position startingPos, Station goalStation)
+	private ArrayList<Direction> getPathToNextStation(Position startingPos, Station goalStation)
 	{
 		TreeMap<Integer, ArrayList<Node>> nodeMap = new TreeMap<Integer, ArrayList<Node>>();
 		ArrayList<Position> visitedPositions = new ArrayList<Position>();
@@ -121,8 +153,10 @@ public class Stateful extends Drone {
 			ArrayList<Node> successors = new ArrayList<Node>();
 			for (Direction direction: Direction.values())
 				successors.add(new Node(currentNode.position.nextPosition(direction), currentNode, direction));
+			// remove successors that go outside the Play Area
+			successors.removeIf(s -> !s.position.inPlayArea());
 			
-			// for each successor
+			// for each remaining successor
 			for (Node successor: successors)
 			{
 				// Get the nearest station within range (null if there isn't one)
@@ -134,8 +168,6 @@ public class Stateful extends Drone {
 				{
 					pathFound = successor; break;
 				}
-				
-
 			
 				// If the successor's position is not already in the map
 				boolean alreadyContained = false;
@@ -157,14 +189,22 @@ public class Stateful extends Drone {
 						nodeMap.put(f, new ArrayList<Node>(Arrays.asList(successor)));
 				}
 			}
+			// When the shortest path is found, reconstruct it and return it
 			if (pathFound != null)
 			{
 				System.out.println("Path found!");
-				break;
+				tempPos = pathFound.position;
+				ArrayList<Direction> path = new ArrayList<Direction>();
+				
+				Node currNode = pathFound;
+				while (currNode.parentNode != null)
+				{
+					path.add(0, currNode.directionFromParent);
+					currNode = currNode.parentNode;
+				}
+				return path;
 			}
 		}
-		
-
 		return null;
 	}
 
@@ -173,6 +213,35 @@ public class Stateful extends Drone {
 	private int approximateMovesToStation(Position pos, Station station)
 	{
 		return (int) Math.ceil(pos.getDist(station.position) / 0.0003);
+	}
+	
+	private Direction getInverseDirection(Direction dir)
+	{
+		switch (dir) 
+		{
+			case N: return Direction.S;
+			case NNE: return Direction.SSW;
+			case NE: return Direction.SW;
+			case ENE: return Direction.WSW;
+			
+			case E: return Direction.W;
+			case ESE: return Direction.WNW;
+			case SE: return Direction.NW;
+			case SSE: return Direction.NNW;
+			
+			case S: return Direction.N;
+			case SSW: return Direction.NNE;
+			case SW: return Direction.NE;
+			case WSW: return Direction.ENE;
+			
+			case W: return Direction.E;
+			case WNW: return Direction.ESE;
+			case NW: return Direction.SE;
+			case NNW: return Direction.SSE;
+			
+			default: return null;
+		}
+		
 	}
 	
 	

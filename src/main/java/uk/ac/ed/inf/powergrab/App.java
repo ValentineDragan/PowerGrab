@@ -20,7 +20,7 @@ public class App
 	private static String droneType;
 	//private static Map map;
 	
-	private static int moveNumber = 0;
+	public static int moveNumber = 0;
 	
 	private static String fileName;
 	private static PrintWriter textWriter;
@@ -78,7 +78,43 @@ public class App
     	}
     	else
     	{
+    		// Initialise the drone and Output files
     		Stateful theDrone = new Stateful(startingPos, seed);
+    		fileName = "Stateful-"+args[0]+"-"+args[1]+"-"+args[2];
+    		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
+    		
+    		// Inspect current position
+    		if (!theDrone.currentPos.inPlayArea())
+    			System.out.println("Error! Illeigal starting position!");
+    		else
+    		{
+    			// Repeat until 250 moves, or insufficient energy to move
+    			while (moveNumber < 250 && theDrone.power >= 1.25)
+    			{
+    				moveNumber += 1;
+    				// Decide in which direction to move
+    				Direction nextMove = theDrone.getNextMove();
+    				
+    				// Move the drone and charge from nearest station (if in range)
+    				theDrone.move(nextMove);
+    				chargeDrone(theDrone);
+    				
+    				// Write in the text file
+    				writeDroneMove(theDrone, nextMove);
+    				
+    				// DEBUGGING
+    				System.out.println("-------------------------------------");
+    				System.out.println("Move " + moveNumber + ": " + nextMove);
+    			}
+    		}
+    		
+			// DEBUGGING
+			System.out.println("Total number of coins: " + theDrone.coins);
+			System.out.println("Total number of power: " + theDrone.power);
+			
+			// Write drone path to geojson file
+			writeGeoJson(Map.getFeatureCollection(), theDrone);
+    		textWriter.close();
     		
     	}
     	

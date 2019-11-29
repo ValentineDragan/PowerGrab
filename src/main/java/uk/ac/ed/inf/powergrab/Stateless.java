@@ -79,9 +79,6 @@ public class Stateless extends Drone {
 			allDirections.removeIf(d -> !currentPos.nextPosition(d).inPlayArea());
 			
 			// Step 2d
-			Direction result = null;
-						
-			// Return random direction
 			if (!allDirections.isEmpty())
 			{
 				return allDirections.get(rnd.nextInt(allDirections.size()));
