@@ -32,7 +32,7 @@ public class Stateful extends Drone {
 		System.out.println("PLANNED MOVES SIZE BEFORE FILL: " + plan.size());
 		
 		// Zig-Zag (between the last move and its inverse) until we reach 250 moves
-		int remainingMoves = 250 - plan.size();
+		int remainingMoves = 250 - plan.size() + 1;
 		Direction zag = plan.get(plan.size() - 1);
 		Direction zig = getInverseDirection(zag);
 		System.out.println("ZIG ZAG: " + zig + " " + zag);

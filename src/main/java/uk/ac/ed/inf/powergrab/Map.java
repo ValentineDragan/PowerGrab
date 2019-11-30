@@ -23,6 +23,8 @@ public class Map {
 	{
 		loadMap(urlString);
 		stations = loadStations();
+		
+		System.out.println(totalCoinsOnMap());
 	}
 	
 	
@@ -93,6 +95,15 @@ public class Map {
 	public static FeatureCollection getFeatureCollection()
 	{
 		return FeatureCollection.fromFeatures(feature_collection.features());
+	}
+	
+	private static double totalCoinsOnMap()
+	{
+		double sum = 0;
+		for (Station s: stations)
+			if (s.money > 0)
+				sum += s.money;
+		return sum;
 	}
 	
 }

@@ -4,10 +4,43 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Position {
-	public double latitude;
-	public double longitude;
+	public final double latitude;
+	public final double longitude;
+	
+	protected static final Map<Direction, ArrayList<Double>> directionChanges;
+	
+	// Pre-compute (only once) the changes in latitude and longitude for each direction of travel
+	static {
+		double r = 0.0003;
+		HashMap<Direction, ArrayList<Double>> map = new HashMap<Direction, ArrayList<Double>>();
+		
+		map.put(Direction.N, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(90), r*sinOfAngle(90))));
+		map.put(Direction.NNE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(67.5), r*sinOfAngle(67.5))));
+		map.put(Direction.NE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(45), r*sinOfAngle(45))));
+		map.put(Direction.ENE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(22.5), r*sinOfAngle(22.5))));
+		
+		map.put(Direction.E, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(0), -r*sinOfAngle(0))));
+		map.put(Direction.ESE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(22.5), -r*sinOfAngle(22.5))));
+		map.put(Direction.SE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(45), -r*sinOfAngle(45))));
+		map.put(Direction.SSE, new ArrayList<Double>(Arrays.asList(r*cosOfAngle(67.5), -r*sinOfAngle(67.5))));
+		
+		map.put(Direction.S, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(90), -r*sinOfAngle(90))));
+		map.put(Direction.SSW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(67.5), -r*sinOfAngle(67.5))));
+		map.put(Direction.SW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(45), -r*sinOfAngle(45))));
+		map.put(Direction.WSW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(22.5), -r*sinOfAngle(22.5))));
+		
+		map.put(Direction.W, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(0), r*sinOfAngle(0))));
+		map.put(Direction.WNW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(22.5), r*sinOfAngle(22.5))));
+		map.put(Direction.NW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(45), r*sinOfAngle(45))));
+		map.put(Direction.NNW, new ArrayList<Double>(Arrays.asList(-r*cosOfAngle(67.5), r*sinOfAngle(67.5))));
+		
+		 directionChanges = Collections.unmodifiableMap(map);
+	}
 	
 	public Position(double latitude, double longitude)
 	{
@@ -18,31 +51,9 @@ public class Position {
 	// Returns the next position of the drone when it makes a move in the specified compass direction
 	public Position nextPosition(Direction direction)
 	{
-		double latChange=0, longChange=0;
-		double r = 0.0003;
-		switch (direction) 
-		{
-			case N: { longChange = r*cosOfAngle(90); latChange = r*sinOfAngle(90); break; }
-			case NNE: { longChange = r*cosOfAngle(67.5); latChange = r*sinOfAngle(67.5); break; }
-			case NE: { longChange = r*cosOfAngle(45); latChange = r*sinOfAngle(45); break; }
-			case ENE: { longChange = r*cosOfAngle(22.5); latChange = r*sinOfAngle(22.5); break; }
-				
-			case E: { longChange = r*cosOfAngle(0); latChange = -r*sinOfAngle(0); break; }
-			case ESE: { longChange = r*cosOfAngle(22.5); latChange = -r*sinOfAngle(22.5); break; }
-			case SE: { longChange = r*cosOfAngle(45); latChange = -r*sinOfAngle(45); break; }
-			case SSE: { longChange = r*cosOfAngle(67.5); latChange = -r*sinOfAngle(67.5); break; }
-				
-			case S: { longChange = -r*cosOfAngle(90); latChange = -r*sinOfAngle(90); break; }
-			case SSW: { longChange = -r*cosOfAngle(67.5); latChange = -r*sinOfAngle(67.5); break; }
-			case SW: { longChange = -r*cosOfAngle(45); latChange = -r*sinOfAngle(45); break; }
-			case WSW: { longChange = -r*cosOfAngle(22.5); latChange = -r*sinOfAngle(22.5); break; }
-				
-			case W: { longChange = -r*cosOfAngle(0); latChange = r*sinOfAngle(0); break; }
-			case WNW: { longChange = -r*cosOfAngle(22.5); latChange = r*sinOfAngle(22.5); break; }
-			case NW: { longChange = -r*cosOfAngle(45); latChange = r*sinOfAngle(45); break; }
-			case NNW: { longChange = -r*cosOfAngle(67.5); latChange = r*sinOfAngle(67.5); break; }
-		}
-		return  new Position(this.latitude + latChange, this.longitude + longChange);
+		double longChange = directionChanges.get(direction).get(0);
+		double latChange = directionChanges.get(direction).get(1);
+		return new Position(this.latitude + latChange, this.longitude + longChange);
 	}
 	
 	// Returns whether or not this Position lies in the PowerGrab play area
@@ -75,22 +86,14 @@ public class Position {
 	 * ---------------------------------------------------------- */
 	
 	// Returns the sine value of an angle, in degrees
-	private double sinOfAngle(double angDeg)
+	private static double sinOfAngle(double angDeg)
 	{
 		return Math.sin(Math.toRadians(angDeg));
 	}
 	
 	// Returns the cosine value of an angle, in degrees
-	private double cosOfAngle(double angDeg)
+	private static double cosOfAngle(double angDeg)
 	{
 		return Math.cos(Math.toRadians(angDeg));
 	}
-	
-	// Sorts a Map<Direction, Double> by value in ascending order
-	private static Map<Direction, Double> sortByValue(final Map<Direction, Double> directions) {
-        return directions.entrySet()
-                .stream()
-                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    }
 }

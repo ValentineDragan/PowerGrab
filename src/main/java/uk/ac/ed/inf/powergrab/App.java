@@ -18,29 +18,25 @@ public class App
 	private static double startingLat, startingLong;
 	private static int seed;
 	private static String droneType;
-	//private static Map map;
 	
 	public static int moveNumber = 0;
+
 	
-	private static String fileName;
-	private static PrintWriter textWriter;
-	private static PrintWriter geojsonWriter;
-	
-    public static void main( String[] args ) throws FileNotFoundException, IOException
-    {
+    public static void main( String[] args ) 
+    {	
     	// load Args
     	loadArgs(args);
     	Position startingPos = new Position(startingLat, startingLong);
     	
     	// load Map
-    	Map.Map("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
+    	Map.Map("http://homepages.inf.ed.ac.uk/stg/powergrab/" + date + "/powergrabmap.geojson");
     	
     	   	
     	if (droneType.equals("stateless"))
     	{
     		// Initialise the drone and Output files
     		Stateless theDrone = new Stateless(startingPos, seed);
-    		fileName = "Stateless-"+args[0]+"-"+args[1]+"-"+args[2];
+    		fileName = "stateless-"+args[0]+"-"+args[1]+"-"+args[2];
     		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
     		
     		// Inspect current position
@@ -80,7 +76,7 @@ public class App
     	{
     		// Initialise the drone and Output files
     		Stateful theDrone = new Stateful(startingPos, seed);
-    		fileName = "Stateful-"+args[0]+"-"+args[1]+"-"+args[2];
+    		fileName = "stateful-"+args[0]+"-"+args[1]+"-"+args[2];
     		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
     		
     		// Inspect current position
@@ -119,8 +115,6 @@ public class App
     	}
     	
     	
-    	
-    	
     	// Debugger.debug_StationsByDistance(startingPos);
     	// Debugger.debug_printStations(map);
     	// Debugger.debug_printArgs();
@@ -150,9 +144,10 @@ public class App
     	if (drone.currentPos.inRange(nearest_station.position)) 
     	{
     		if (nearest_station.symbol.equals("danger"))
-        		System.out.println("Danger! Drone charged from a negative station! id: " + nearest_station.id);
+        		System.out.println("Danger!!! Drone charged from a negative station! id: " + nearest_station.id);
         	else if (nearest_station.power == 0 && nearest_station.money == 0)
-        		System.out.println("Warning! Drone charged from an empty station! id: " + nearest_station.id);
+        		System.out.println("Empty station.");
+        		//System.out.println("Warning! Drone charged from an empty station! id: " + nearest_station.id);
         	else
         		System.out.println("Drone charged. Power: " + nearest_station.power + "; money: " + nearest_station.money + "; id: " + nearest_station.id);
     		
@@ -223,36 +218,4 @@ public class App
     	return result;
     }
     
-    // Writes a drone's move in the text file
-    private static void writeDroneMove(Drone drone, Direction direction) throws FileNotFoundException, IOException
-    {
-    	Position previousPos = drone.getLastMove();
-    	Position currPos = drone.getCurrentPos();
-    	textWriter.println(String.format("%f,%f,%s,%f,%f,%f,%f", previousPos.latitude, previousPos.longitude, direction,
-    					currPos.latitude, currPos.longitude, drone.coins, drone.power));	
-    }
-    
-    
-    private static void writeGeoJson(FeatureCollection feature_collection, Drone drone) throws FileNotFoundException, IOException
-    {
-    	// Convert moveHistory to List<Point>
-    	List<Point> points = new ArrayList<Point>();
-    	for (Position position: drone.moveHistory)
-    	{
-    		Point point = Point.fromLngLat(position.longitude, position.latitude);
-    		points.add(point);
-    	}
-    	
-    	// Create LineString
-    	LineString lineString = LineString.fromLngLats(points);
-    	
-    	// Add the lineString feature to the Feature Collection
-    	Feature lineFeature = Feature.fromGeometry(lineString);
-    	feature_collection.features().add(lineFeature);
-    	
-    	// Print it to the file
-		geojsonWriter = new PrintWriter(fileName+".geojson", "UTF-8");
-		geojsonWriter.print(feature_collection.toJson());
-		geojsonWriter.close();
-    }
 }

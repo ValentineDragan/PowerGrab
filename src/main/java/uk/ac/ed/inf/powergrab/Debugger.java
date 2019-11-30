@@ -18,8 +18,20 @@ public class Debugger {
 		
 	}*/
 	
-    // Prints out all the features extracted for the given url
-    private static void debug_loadMap(String urlString)
+	public static void Debugger()
+	{}
+	
+    
+	public static void debug_Position(Position position)
+	{
+		Position nextPos;
+		for (Direction dir: Direction.values())
+			nextPos = position.nextPosition(dir);
+	}
+	
+	
+	// Prints out all the features extracted for the given url
+    public static void debug_loadMap(String urlString)
     {
         Map.Map(urlString);
         List<Feature> features = Map.getFeatureCollection().features();
@@ -31,14 +43,14 @@ public class Debugger {
     }
     
     // Prints out the input arguments
-    private static void debug_printArgs(String date, double startingLat, double startingLong, int seed, String droneType)
+    public static void debug_printArgs(String date, double startingLat, double startingLong, int seed, String droneType)
     {
     	System.out.println("INPUT ARGUMENTS: \n" + date + '\n' + startingLat + '\n' + 
     			startingLong + '\n' + seed + '\n' + droneType);
     }
     
     // Prints out the List of all stations from a given Map class
-    private static void debug_printStations(Map map)
+    public static void debug_printStations(Map map)
     {
     	List<Station> stations = map.getStations();
     	
@@ -49,7 +61,7 @@ public class Debugger {
     }
     
     // Prints out all Station IDs, ordered by distance from the origin
-    private static void debug_StationsByDistance(Position origin)
+    public static void debug_StationsByDistance(Position origin)
     {
    	 	List<Station> sorted_stations = App.getStationsByDistance(origin);
   	
