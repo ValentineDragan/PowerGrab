@@ -27,7 +27,7 @@ public class InputOutputManager {
     {
     	Position previousPos = drone.getLastMove();
     	Position currPos = drone.getCurrentPos();
-    	textWriter.println(String.format("%f,%f,%s,%f,%f,%f,%f", previousPos.latitude, previousPos.longitude, 
+    	textWriter.println(String.format("%f,%f,%s,%f,%f,%.6f,%.6f", previousPos.latitude, previousPos.longitude, 
     			direction, currPos.latitude, currPos.longitude, drone.getCoins(), drone.getPower()));
     }
     
