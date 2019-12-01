@@ -5,17 +5,15 @@ import java.io.IOException;
 
 public class GameManager {
 	
-	private App theApp;
-	private DroneModel theDrone;
-	private int moveNumber=0;
+	private static DroneModel theDrone;
+	private static int moveNumber=0;
 	
-	public GameManager(App theApp, DroneModel theDrone)
+	public static void GameManager(DroneModel theDrone)
 	{
-		this.theApp = theApp;
-		this.theDrone = theDrone;
+		theDrone = theDrone;
 	}
 	
-	protected void startGame() throws FileNotFoundException, IOException
+	protected static void startGame() throws FileNotFoundException, IOException
 	{
     	// Repeat until 250 moves, or insufficient energy to move
 		while (moveNumber < 250 && theDrone.getPower() >= 1.25)
@@ -26,7 +24,7 @@ public class GameManager {
 			theDrone.move(nextMove);
 			chargeDrone(theDrone);
 			// Write in the output file
-			theApp.writeDroneMove(theDrone, nextMove);		
+			App.writeDroneMove(theDrone, nextMove);		
 			moveNumber += 1;
 			// DEBUGGING
 			System.out.println("-------------------------------------");
@@ -40,7 +38,7 @@ public class GameManager {
 	
     // Attempt to charge drone from the nearest station
     // Will print out the result
-    private void chargeDrone(DroneModel drone)
+    private static void chargeDrone(DroneModel drone)
     {
     	Station nearest_station = MapFunctions.getNearestStation(drone.getCurrentPos());
     	
@@ -68,7 +66,7 @@ public class GameManager {
     }
    
     
-    public int getMoveNumber() {
+    public static int getMoveNumber() {
     	return moveNumber;
     }
 }
