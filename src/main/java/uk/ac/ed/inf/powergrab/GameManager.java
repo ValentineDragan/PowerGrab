@@ -5,10 +5,10 @@ import java.io.IOException;
 
 public class GameManager {
 	
-	private static DroneModel theDrone;
+	private static Drone theDrone;
 	private static int moveNumber=0;
 	
-	public static void GameManager(DroneModel theDrone)
+	public static void GameManager(Drone theDrone)
 	{
 		theDrone = theDrone;
 	}
@@ -38,7 +38,7 @@ public class GameManager {
 	
     // Attempt to charge drone from the nearest station
     // Will print out the result
-    private static void chargeDrone(DroneModel drone)
+    private static void chargeDrone(Drone drone)
     {
     	Station nearest_station = MapFunctions.getNearestStation(drone.getCurrentPos());
     	

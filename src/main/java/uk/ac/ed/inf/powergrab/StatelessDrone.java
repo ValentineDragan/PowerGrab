@@ -2,7 +2,7 @@ package uk.ac.ed.inf.powergrab;
 
 import java.util.Random;
 
-public class StatelessDrone extends DroneModel{
+public class StatelessDrone extends Drone{
 
 	StatelessLogic droneLogic;
 	

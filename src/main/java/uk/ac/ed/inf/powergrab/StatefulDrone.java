@@ -1,6 +1,6 @@
 package uk.ac.ed.inf.powergrab;
 
-public class StatefulDrone extends DroneModel {
+public class StatefulDrone extends Drone {
 
 	StatefulLogic droneLogic;
 	

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DroneModel {
+public class Drone {
 	private Position currentPos;
 	private double power = 250.0;
 	private double coins = 0.0;
@@ -14,7 +14,7 @@ public class DroneModel {
 	protected List<Position> moveHistory = new ArrayList<Position>();
 	
 	
-	public DroneModel(Position startingPos, int seed) {
+	public Drone(Position startingPos, int seed) {
 		this.currentPos = startingPos;
 		this.seed = seed;
 		rnd = new Random(seed);

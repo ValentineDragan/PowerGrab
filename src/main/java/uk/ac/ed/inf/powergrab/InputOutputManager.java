@@ -23,7 +23,7 @@ public class InputOutputManager {
 	}
 	
     // Writes a drone's move in the text file
-    protected static void writeDroneMove(DroneModel drone, Direction direction) throws FileNotFoundException, IOException
+    protected static void writeDroneMove(Drone drone, Direction direction) throws FileNotFoundException, IOException
     {
     	Position previousPos = drone.getLastMove();
     	Position currPos = drone.getCurrentPos();
@@ -31,7 +31,7 @@ public class InputOutputManager {
     			direction, currPos.latitude, currPos.longitude, drone.getCoins(), drone.getPower()));
     }
     
-    protected static void writeGeoJson(FeatureCollection feature_collection, DroneModel drone) throws FileNotFoundException, IOException
+    protected static void writeGeoJson(FeatureCollection feature_collection, Drone drone) throws FileNotFoundException, IOException
     {
     	// Convert moveHistory to List<Point>
     	List<Point> points = new ArrayList<Point>();

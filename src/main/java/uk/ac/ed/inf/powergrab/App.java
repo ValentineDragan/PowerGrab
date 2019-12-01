@@ -22,7 +22,7 @@ public class App
 	public static int moveNumber = 1;
 
 	private static String fileName;
-	private static DroneModel theDrone;
+	private static Drone theDrone;
 	
     public static void main( String[] args ) throws FileNotFoundException, IOException 
     {	
