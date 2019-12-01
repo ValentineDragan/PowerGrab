@@ -1,41 +1,22 @@
 package uk.ac.ed.inf.powergrab;
 
-public class StatefulDrone implements Drone2 {
+public class StatefulDrone extends DroneModel {
 
-	@Override
-	public Direction getNextMove() {
-		// TODO Auto-generated method stub
-		return null;
+	StatefulLogic droneLogic;
+	
+	
+	public StatefulDrone(Position startingPos, int seed) {
+		super(startingPos, seed);
+		
+		// Random() is not used in the StatefulLogic, so 'seed' is not needed
+		droneLogic = new StatefulLogic(this.getCurrentPos());
 	}
-
+	
 	@Override
-	public Position getCurrentPos() {
-		// TODO Auto-generated method stub
-		return null;
+	public Direction getNextMove()
+	{
+		return droneLogic.getNextMove(this.getCurrentPos());
 	}
-
-	@Override
-	public double getPower() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getCoins() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getSeed() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public Position getLastMove() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
+	
 }
