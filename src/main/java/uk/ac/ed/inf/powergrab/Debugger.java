@@ -3,6 +3,7 @@ package uk.ac.ed.inf.powergrab;
 import java.util.List;
 
 import com.mapbox.geojson.Feature;
+import uk.ac.ed.inf.powergrab.MapFunctions;
 
 public class Debugger {
 
@@ -56,18 +57,18 @@ public class Debugger {
     	
     	System.out.println(stations.size() + " stations:");
     	for (Station station: stations)
-    		System.out.println(station.position.latitude + " " + station.position.longitude + " " + station.money + " " + station.power);
+    		System.out.println(station.getPosition().latitude + " " + station.getPosition().longitude + " " + station.getMoney() + " " + station.getPower());
     
     }
     
     // Prints out all Station IDs, ordered by distance from the origin
     public static void debug_StationsByDistance(Position origin)
     {
-   	 	List<Station> sorted_stations = App.getStationsByDistance(origin);
+   	 	List<Station> sorted_stations = MapFunctions.getStationsByDistance(origin);
   	
 	     System.out.println("Sorted stations: " + sorted_stations.size());
 	     for (Station station: sorted_stations) {
-	         System.out.println("dist: " + origin.getDist(station.position) + " --- station id: " + station.id);
+	         System.out.println("dist: " + origin.getDist(station.getPosition()) + " --- station id: " + station.getId());
 	     }
     }
     
