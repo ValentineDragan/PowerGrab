@@ -64,10 +64,6 @@ public class App
     	// Debugger.debug_printStations(map);
     	// Debugger.debug_printArgs();
     	// Debugger.debug_loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
-    
-    protected static void writeDroneMove(DroneModel theDrone, Direction move) throws FileNotFoundException, IOException {
-    	InputOutputManager.writeDroneMove(theDrone, move);
-    }
 
     
     private static void parseArgs(String args[])

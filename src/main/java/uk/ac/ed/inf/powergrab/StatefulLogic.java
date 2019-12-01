@@ -22,38 +22,6 @@ public class StatefulLogic implements DroneLogic {
 		return plannedMoves.get(moveNumber++);
 	}
 	
-	private ArrayList<Direction> planAllMoves(Position startingPos)
-	{
-		tempPos = startingPos;
-		// Plan in which order we will visit the positive stations (Greedy nearest-station method)
-		ArrayList<Station> route = planRoute(startingPos);
-		
-		// For each station in the Route, plan the best path that will take us there (using an A* algorithm)
-		ArrayList<Direction> plan = new ArrayList<Direction>();
-		for (int i=0; i<route.size(); i++)
-		{
-			ArrayList<Direction> path = getPathToNextStation(tempPos, route.get(i));
-			plan.addAll(path);
-		}
-		System.out.println("PLANNED MOVES SIZE BEFORE FILL: " + plan.size());
-		
-		// Zig-Zag (between the last move and its inverse) until we reach 250 moves
-		int remainingMoves = 250 - plan.size() + 1;
-		Direction zag = plan.get(plan.size() - 1);
-		Direction zig = getInverseDirection(zag);
-		System.out.println("ZIG ZAG: " + zig + " " + zag);
-		
-		for (int i=0; i < remainingMoves/2; i++)
-		{
-			plan.add(zig); plan.add(zag);
-		}
-		if (plan.size() == 251)
-			plan.remove(plan.size() - 1);
-		System.out.println("PLANNED MOVES SIZE AFTER FILL: " + plan.size());
-		
-		return plan;
-	}
-	
 	private ArrayList<Station> planRoute(Position startingPos)
 	{
 		// Initialise empty route and starting position
@@ -93,6 +61,39 @@ public class StatefulLogic implements DroneLogic {
 		
 		return plannedRoute;
 	}
+	
+	private ArrayList<Direction> planAllMoves(Position startingPos)
+	{
+		tempPos = startingPos;
+		// Plan in which order we will visit the positive stations (Greedy nearest-station method)
+		ArrayList<Station> route = planRoute(startingPos);
+		
+		// For each station in the Route, plan the best path that will take us there (using an A* algorithm)
+		ArrayList<Direction> plan = new ArrayList<Direction>();
+		for (int i=0; i<route.size(); i++)
+		{
+			ArrayList<Direction> path = getPathToNextStation(tempPos, route.get(i));
+			plan.addAll(path);
+		}
+		System.out.println("PLANNED MOVES SIZE BEFORE FILL: " + plan.size());
+		
+		// Zig-Zag (between the last move and its inverse) until we reach 250 moves
+		int remainingMoves = 250 - plan.size() + 1;
+		Direction zag = plan.get(plan.size() - 1);
+		Direction zig = getInverseDirection(zag);
+		System.out.println("ZIG ZAG: " + zig + " " + zag);
+		
+		for (int i=0; i < remainingMoves/2; i++)
+		{
+			plan.add(zig); plan.add(zag);
+		}
+		if (plan.size() == 251)
+			plan.remove(plan.size() - 1);
+		System.out.println("PLANNED MOVES SIZE AFTER FILL: " + plan.size());
+		
+		return plan;
+	}
+	
 	
 	/* Used in the A* search algorithm
 	*/

@@ -61,7 +61,7 @@ public class StatelessLogic implements DroneLogic {
 		}
 		
 		// Step 2
-		Station best = chooseBestStation(new ArrayList<Station>(reachable_stations.keySet()));
+		Station best = bestNearbyStation(new ArrayList<Station>(reachable_stations.keySet()));
 		if (best != null)
 			// Step 2a
 			return reachable_stations.get(best);
@@ -94,30 +94,21 @@ public class StatelessLogic implements DroneLogic {
 
 		// Given a list of stations, returns the Station with the highest money value
 		// Returns null if there is no positive station in the list
-		private Station chooseBestStation(List<Station> stations)
+		private Station bestNearbyStation(List<Station> nearbyStations)
 		{
 			// check that the list is not empty
-			if (stations.isEmpty())
+			if (nearbyStations.isEmpty())
 				return null;
 			
-			Collections.sort(stations, new SortByMoney());
+			Collections.sort(nearbyStations, new SortByMoney());
 			
-			Station best = stations.get(stations.size() - 1);
+			Station best = nearbyStations.get(nearbyStations.size() - 1);
 			if (best.getMoney() <= 0)
 				return null;
 			else
 				return best;
 		}
 
-		// Comparator: sorts Stations based on power
-		class SortByPower implements Comparator<Station>
-		{
-			@Override
-			public int compare(Station s1, Station s2) {
-				return Double.compare(s1.getPower(), s2.getPower());
-			}
-		}
-		
 		// Comparator: sorts Stations based on power
 		class SortByMoney implements Comparator<Station>
 		{

@@ -24,7 +24,7 @@ public class GameManager {
 			theDrone.move(nextMove);
 			chargeDrone(theDrone);
 			// Write in the output file
-			App.writeDroneMove(theDrone, nextMove);		
+			InputOutputManager.writeDroneMove(theDrone, nextMove);		
 			moveNumber += 1;
 			// DEBUGGING
 			System.out.println("-------------------------------------");
