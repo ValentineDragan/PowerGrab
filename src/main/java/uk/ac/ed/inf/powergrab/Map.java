@@ -11,7 +11,7 @@ import com.mapbox.geojson.*;
 import org.apache.commons.io.IOUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-  
+
 public class Map {
 
 	private static FeatureCollection feature_collection = null;
@@ -23,8 +23,6 @@ public class Map {
 	{
 		loadMap(urlString);
 		stations = loadStations();
-		
-		System.out.println(totalCoinsOnMap());
 	}
 	
 	
@@ -81,9 +79,8 @@ public class Map {
 	protected static void updateStation(Station station, double coinsAmount, double powerAmount)
 	{
 		Station theStation = stations.get(stations.indexOf(station));
-		theStation.money -= coinsAmount;
-		theStation.power -= powerAmount;
-		
+		theStation.takeMoney(coinsAmount);
+		theStation.takePower(powerAmount);		
 	}
 	
 	public static List<Station> getStations()
@@ -97,13 +94,6 @@ public class Map {
 		return FeatureCollection.fromFeatures(feature_collection.features());
 	}
 	
-	private static double totalCoinsOnMap()
-	{
-		double sum = 0;
-		for (Station s: stations)
-			if (s.money > 0)
-				sum += s.money;
-		return sum;
-	}
+
 	
 }
