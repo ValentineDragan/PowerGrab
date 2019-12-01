@@ -24,7 +24,10 @@ public class App
 	private static String fileName;
 	private static DroneModel theDrone;
 	
-    public static void main( String[] args ) throws FileNotFoundException, IOException 
+	private InputOutputManager ioManager;
+	private GameManager gameManager;
+	
+    public void main( String[] args ) throws FileNotFoundException, IOException 
     {	
     	// Parse Arguments
     	parseArgs(args);
@@ -34,8 +37,8 @@ public class App
     	Map.Map("http://homepages.inf.ed.ac.uk/stg/powergrab/" + date + "/powergrabmap.geojson");
     	
     	// Initialise Input/Output Manager and Drone initial parameters
-    	InputOutputManager.InputOutputManager(fileName);
-    	InputOutputManager.openTextWriter();
+    	ioManager = new InputOutputManager(fileName);
+    	ioManager.openTextWriter();
     	if (droneType.equals("stateless"))
     		theDrone = new StatelessDrone(startingPos, seed);
     	else
@@ -48,13 +51,17 @@ public class App
     		System.exit(0);
     	}
     	
+    	// Initialise GameManager and start the game
+    	gameManager = new GameManager(this, theDrone);
+    	gameManager.startGame();
+    	
 		// DEBUGGING
 		System.out.println("Total number of coins: " + theDrone.getCoins());
 		System.out.println("Total number of power: " + theDrone.getPower());
 		
 		// Write drone path to geojson file; Close the Output file
-		InputOutputManager.writeGeoJson(Map.getFeatureCollection(), theDrone);
-		InputOutputManager.closeTextWriter();
+		ioManager.writeGeoJson(Map.getFeatureCollection(), theDrone);
+		ioManager.closeTextWriter();
     }
     	
     	
@@ -63,12 +70,12 @@ public class App
     	// Debugger.debug_printArgs();
     	// Debugger.debug_loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/2019/09/15/powergrabmap.geojson");
     
-    protected static void writeDroneMove(DroneModel theDrone, Direction move) throws FileNotFoundException, IOException {
-    	InputOutputManager.writeDroneMove(theDrone, move);
+    protected void writeDroneMove(DroneModel theDrone, Direction move) throws FileNotFoundException, IOException {
+    	ioManager.writeDroneMove(theDrone, move);
     }
 
     
-    private static void parseArgs(String args[])
+    private void parseArgs(String args[])
     {
     	try {
 	    	date = args[2] + "/" + args[1] + "/" + args[0];

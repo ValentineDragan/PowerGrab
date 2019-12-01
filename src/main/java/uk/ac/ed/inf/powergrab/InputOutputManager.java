@@ -13,17 +13,17 @@ import com.mapbox.geojson.Point;
 
 public class InputOutputManager {
 
-	private static String fileName;
-	private static PrintWriter textWriter;
-	private static PrintWriter geojsonWriter;
+	private String fileName;
+	private PrintWriter textWriter = null;
+	private PrintWriter geojsonWriter;
 	
-	public static void InputOutputManager(String fileStr) 
+	public InputOutputManager(String fileStr) 
 	{
 		fileName = fileStr;
 	}
 	
     // Writes a drone's move in the text file
-    protected static void writeDroneMove(DroneModel drone, Direction direction) throws FileNotFoundException, IOException
+    protected void writeDroneMove(DroneModel drone, Direction direction) throws FileNotFoundException, IOException
     {
     	Position previousPos = drone.getLastMove();
     	Position currPos = drone.getCurrentPos();
@@ -31,7 +31,7 @@ public class InputOutputManager {
     			direction, currPos.latitude, currPos.longitude, drone.getCoins(), drone.getPower()));
     }
     
-    protected static void writeGeoJson(FeatureCollection feature_collection, DroneModel drone) throws FileNotFoundException, IOException
+    protected void writeGeoJson(FeatureCollection feature_collection, DroneModel drone) throws FileNotFoundException, IOException
     {
     	// Convert moveHistory to List<Point>
     	List<Point> points = new ArrayList<Point>();
@@ -54,12 +54,13 @@ public class InputOutputManager {
 		geojsonWriter.close();
     }
     
-	public static void openTextWriter() throws FileNotFoundException, IOException
+	public void openTextWriter() throws FileNotFoundException, IOException
 	{
 		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
+		
 	}
 	
-	public static void closeTextWriter() throws FileNotFoundException, IOException
+	public void closeTextWriter() throws FileNotFoundException, IOException
 	{
 		textWriter.close();
 	}
