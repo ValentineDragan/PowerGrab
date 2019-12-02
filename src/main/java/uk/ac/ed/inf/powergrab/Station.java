@@ -8,11 +8,11 @@ public class Station {
 	private String color;
 	private Position position;
 	
-	public Station(String id, double p, double m, String sym, String col, double lon, double lat)
+	public Station(String id, double money, double power, String sym, String col, double lon, double lat)
 	{
 		this.id = id;
-		this.power = p;
-		this.money = m;
+		this.money = money;
+		this.power = power;
 		this.symbol = sym;
 		this.color = col;
 		position = new Position(lat, lon);
@@ -27,6 +27,7 @@ public class Station {
 		return power;
 	}
 	
+	// Takes away power after a Drone has charged from this Station
 	protected void takePower(double amount) {
 		this.power -= amount;
 	}
@@ -35,6 +36,7 @@ public class Station {
 		return money;
 	}
 	
+	// Takes away money after a Drone has charged from this Station
 	protected void takeMoney(double amount) {
 		this.money -= amount;
 	}

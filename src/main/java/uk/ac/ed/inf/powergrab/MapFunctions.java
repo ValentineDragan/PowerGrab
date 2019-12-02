@@ -6,24 +6,36 @@ import java.util.List;
 
 public class MapFunctions {
 
-    // Return the nearest station from the origin
-    protected static Station getNearestStation(Position origin)
-    {
+	/** Return the nearest station from the origin. This method is used to determine the Station that's closest to the Drone.
+	 * @param origin - the Position of origin (e.g. the Drone's position).
+	 * @return the Station that's closest to the origin.
+	 */
+    protected static Station getNearestStation(Position origin) {
     	return getStationsByDistance(origin).get(0);
     }
     
-    // Returns a List of all stations, ordered by distance from the origin
+    /** Returns a List of all Stations ordered by distance from the origin.
+     * This is used in the Stateless Drone to determine which Stations are within 1 move away.
+     * @param origin - the Position of origin (e.g. the Drone's position)
+     * @return a List of Stations ordered by distance from the origin. Also contains negative stations!
+     */
     protected static List<Station> getStationsByDistance(Position origin)
     {
-    	List<Station> stations_sorted = new ArrayList(Map.getStations());
+    	List<Station> stations_sorted = new ArrayList<Station>(Map.getStations());
     	Collections.sort(stations_sorted, new DistanceComparator(origin));
     	return stations_sorted;
     }
     
     
-    // Returns the direction the origin-point needs to move in order to reach within 0.00025 degrees of the destination
-    // If there are multiple directions, the function returns the one that would bring it closest to the destination
-    // Returns null if there are no directions that reach the destination
+  
+    /** Return which Direction would bring the origin Position within range of the destination.
+     * This is used in the Stateless Drone to determine which Direction reaches the nearest positive station.
+     * If there are multiple directions, the method returns the one that would bring it closest to the destination.
+     * @param origin - the Position of origin (e.g. the Drone's position)
+     * @param destination - the Position of destination (e.g. the Station's position)
+     * @return Returns the Direction that would reach the destination. If there are multiple, the function returns the one that would take us 
+     * closer to the destination. Returns null If there are no Direction that would reach the destination. 
+     */
     protected static Direction directionToReach(Position origin, Position destination)
     {
     	Direction result = null;
@@ -41,14 +53,4 @@ public class MapFunctions {
     
     	return result;
     }
-    
-    
-	protected static double totalCoinsOnMap(ArrayList<Station> stations)
-	{
-		double sum = 0;
-		for (Station s: stations)
-			if (s.getMoney() > 0)
-				sum += s.getMoney();
-		return sum;
-	}
 }

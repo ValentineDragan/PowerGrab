@@ -4,12 +4,9 @@ public class StatefulDrone extends Drone {
 
 	StatefulLogic droneLogic;
 	
-	
 	public StatefulDrone(Position startingPos, int seed) {
 		super(startingPos, seed);
-		
-		// Random() is not used in the StatefulLogic, so 'seed' is not needed
-		droneLogic = new StatefulLogic(this.getCurrentPos());
+		droneLogic = new StatefulLogic(this.getCurrentPos(), this.rnd);
 	}
 	
 	@Override

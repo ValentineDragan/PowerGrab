@@ -31,25 +31,19 @@ public class StatelessLogic implements DroneLogic {
 	 *    	2b. Exclude Directions which would reach a negative station
 	 *    	2c. Exclude Illegal directions (which would take you out of the play area)
 	 *   	2d. From the remaining Directions, return one at random
+	 *   
+	 *   @param currentPos - the current position of the drone
 	 */
 	@Override
 	public Direction getNextMove(Position currentPos)
 	{
 		// Step 1a
-		List<Station> stations = new ArrayList(MapFunctions.getStationsByDistance(currentPos));
+		List<Station> stations = new ArrayList<Station>(MapFunctions.getStationsByDistance(currentPos));
 		
 		System.out.println("Total number of stations: " + stations.size());
 		
 		// Step 1b
 		stations.removeIf(s -> currentPos.getDist(s.getPosition()) > 0.00055);
-		
-		/* ConcurrentModificationException
-		for (Station station: stations)
-		{
-			System.out.println("test");
-			if (currentPos.getDist(station.position) > 0.00055)
-				stations.remove(station);
-		}*/
 		
 		// Step 1c
 		HashMap<Station, Direction> reachable_stations = new HashMap<Station, Direction>();
@@ -117,5 +111,4 @@ public class StatelessLogic implements DroneLogic {
 				return Double.compare(s1.getMoney(), s2.getMoney());
 			}
 		}
-
 }

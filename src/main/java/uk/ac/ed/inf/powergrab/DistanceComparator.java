@@ -1,6 +1,9 @@
 package uk.ac.ed.inf.powergrab;
 import java.util.Comparator;
 
+/**
+ * This comparator is used for sorting Stations based on their distance from a Position of origin.
+ */
 public class DistanceComparator implements Comparator<Station> {
 	Position origin;
 	
@@ -8,7 +11,6 @@ public class DistanceComparator implements Comparator<Station> {
 	{
 		this.origin = origin;
 	}
-	
 	@Override
 	public int compare(Station s1, Station s2) {
 		double dist1 = origin.getDist(s1.getPosition());

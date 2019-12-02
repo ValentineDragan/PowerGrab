@@ -6,35 +6,14 @@ import com.mapbox.geojson.Feature;
 import uk.ac.ed.inf.powergrab.MapFunctions;
 
 public class Debugger {
-
+	
 	/* ---------------------------------------------------------- 
 	 *                    DEBUGGING FUNCTIONS
 	 * ---------------------------------------------------------- */
     
-    
-	// Print out all scores that
-	/*
-	public String[] getScores(String dateBeginning, String dateEnd)
-	{
-		
-	}*/
-	
-	public static void Debugger()
-	{}
-	
-    
-	public static void debug_Position(Position position)
-	{
-		Position nextPos;
-		for (Direction dir: Direction.values())
-			nextPos = position.nextPosition(dir);
-	}
-	
-	
-	// Prints out all the features extracted for the given url
-    public static void debug_loadMap(String urlString)
+	// Prints out all the features extracted from the map
+	protected static void printMapFeatures()
     {
-        Map.Map(urlString);
         List<Feature> features = Map.getFeatureCollection().features();
         
         System.out.println("Number of features: " + features.size());
@@ -43,17 +22,17 @@ public class Debugger {
         }
     }
     
-    // Prints out the input arguments
-    public static void debug_printArgs(String date, double startingLat, double startingLong, int seed, String droneType)
+    // Prints out the input arguments: date, latitude, longitude, seed, droneType
+    protected static void printArgs()
     {
-    	System.out.println("INPUT ARGUMENTS: \n" + date + '\n' + startingLat + '\n' + 
-    			startingLong + '\n' + seed + '\n' + droneType);
+    	System.out.println("INPUT ARGUMENTS: \n" + InputOutputManager.getDate() + '\n' + InputOutputManager.getStartingLat() + '\n' + 
+    			InputOutputManager.getStartingLong() + '\n' + InputOutputManager.getSeed() + '\n' + InputOutputManager.getDroneType());
     }
     
-    // Prints out the List of all stations from a given Map class
-    public static void debug_printStations(Map map)
+    // Prints out the latitude, longitude, money, power values of each station in the Map: 
+    protected static void printStations()
     {
-    	List<Station> stations = map.getStations();
+    	List<Station> stations = Map.getStations();
     	
     	System.out.println(stations.size() + " stations:");
     	for (Station station: stations)
@@ -61,8 +40,8 @@ public class Debugger {
     
     }
     
-    // Prints out all Station IDs, ordered by distance from the origin
-    public static void debug_StationsByDistance(Position origin)
+    // Prints out all Station IDs, ordered by their distance from the origin
+    protected static void printStationsByDistance(Position origin)
     {
    	 	List<Station> sorted_stations = MapFunctions.getStationsByDistance(origin);
   	
@@ -71,5 +50,37 @@ public class Debugger {
 	         System.out.println("dist: " + origin.getDist(station.getPosition()) + " --- station id: " + station.getId());
 	     }
     }
+    
+    /** Prints out whether the drone charged from a Positive, Negative or Empty station.
+     *  This method is used for debugging the Drone's performance.
+     * @param station - that the drone charged from
+     */
+    protected static void printChargeMessage(Station station)
+    {
+    	String message;
+		if (station.getSymbol().equals("danger"))
+    		message = String.format("Mistake!!! Drone charged from the negative station (id %s) ", station.getId());
+    	
+		else if (station.getPower() == 0 && station.getMoney() == 0)
+    		message = "Charged from empty station.";
+
+    	else if (station.getPower() > 0 && station.getMoney() > 0)
+    		message = String.format("Drone charged with Power %.6f and Money %.6f from Station id (%s)",
+    				station.getPower(),station.getMoney(),station.getId());
+    	else message = "Invalid Station";
+		System.out.println(message);
+    }
+    
+    // Prints out the sum of coins from all positive stations on the map
+	protected static void printMaxCoins()
+	{
+		List<Station> stations = Map.getStations();
+		stations.removeIf(s -> s.getMoney() < 0);
+		double sum = 0;
+		for (Station s: stations)
+			if (s.getMoney() > 0)
+				sum += s.getMoney();
+    	System.out.printf("The maximum number of coins the drone can get is: %f\n", sum);
+	}
     
 }
