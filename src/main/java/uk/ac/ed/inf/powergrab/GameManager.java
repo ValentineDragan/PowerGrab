@@ -8,11 +8,20 @@ public class GameManager {
 	private static Drone theDrone;
 	private static int moveNumber=0;
 	
-	public static void GameManager(Drone theDrone)
-	{
-		theDrone = theDrone;
+	// Assigns the Drone that the GameManager will oversee
+	public static void initialise(Drone drone) {
+		theDrone = drone;
 	}
 	
+	/** Starts the game. Each turn, the method will:
+	 *    1. Get the drone's nextMove (the move it wants to perform)
+	 *    2. Move the drone in the specified direction
+	 *    3. Charge the drone, if within range from the nearest station
+	 *    4. Writes down the move in the text output file
+	 * The method also prints Debugging messages for the developer to track game moves.
+	 * @throws FileNotFoundException if the text output file is not found
+	 * @throws IOException if the IO operation is interrupted
+	 */
 	protected static void startGame() throws FileNotFoundException, IOException
 	{
     	// Repeat until 250 moves, or insufficient energy to move
@@ -20,15 +29,19 @@ public class GameManager {
 		{
 			// Get the drone's next move
 			Direction nextMove = theDrone.getNextMove();
-			// Move the drone and charge from nearest station (if in range)
-			theDrone.move(nextMove);
-			chargeDrone(theDrone);
-			// Write in the output file
-			InputOutputManager.writeDroneMove(theDrone, nextMove);		
-			moveNumber += 1;
 			// DEBUGGING
 			System.out.println("-------------------------------------");
 			System.out.println("Move " + moveNumber + ": " + nextMove);
+			
+			// Move the drone
+			theDrone.move(nextMove);
+			
+			// Charge from the nearest station, if within range
+			chargeDrone(theDrone);
+			
+			// Write in the output file
+			InputOutputManager.writeDroneMove(theDrone, nextMove);		
+			moveNumber += 1;
 		}
 		
 		// DEBUGGING
@@ -36,8 +49,12 @@ public class GameManager {
 		System.out.println("Total number of power: " + theDrone.getPower());
 	}
 	
-    // Attempt to charge drone from the nearest station
-    // Will print out the result
+	/** Attempts to charge the drone from the nearest station.
+	 *  If the nearest station is within range, the drone will be charged. The result will be printed.
+	 *  Otherwise the method prints "No station in range".
+	 * 
+	 * @param drone - the drone that we want to charge
+	 */
     private static void chargeDrone(Drone drone)
     {
     	Station nearest_station = MapFunctions.getNearestStation(drone.getCurrentPos());
@@ -45,15 +62,8 @@ public class GameManager {
     	// If the nearest station is within range, charge the drone
     	if (drone.getCurrentPos().inRange(nearest_station.getPosition())) 
     	{
-    		if (nearest_station.getSymbol().equals("danger"))
-        		System.out.println("Danger!!! Drone charged from a negative station! id: " + nearest_station.getId());
-        	else if (nearest_station.getPower() == 0 && nearest_station.getMoney() == 0)
-        		System.out.println("Empty station.");
-        		//System.out.println("Warning! Drone charged from an empty station! id: " + nearest_station.id);
-        	else
-        		System.out.println("Drone charged. Power: " + nearest_station.getPower() + "; money: " + nearest_station.getMoney() + "; id: " + nearest_station.getId());
-    		
     		// charge the drone
+    		Debugger.printChargeMessage(nearest_station);
     		double coinsAmount = nearest_station.getMoney();
     		double powerAmount = Math.max(-drone.getPower(), nearest_station.getPower());
     		drone.charge(coinsAmount, powerAmount);

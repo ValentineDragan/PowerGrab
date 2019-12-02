@@ -13,16 +13,43 @@ import com.mapbox.geojson.Point;
 
 public class InputOutputManager {
 
+	protected static String date;
+	private static double startingLat, startingLong;
+	private static int seed;
+	private static String droneType;
+	
 	private static String fileName;
 	private static PrintWriter textWriter = null;
 	private static PrintWriter geojsonWriter;
 	
-	public static void InputOutputManager(String fileStr) 
-	{
-		fileName = fileStr;
-	}
-	
-    // Writes a drone's move in the text file
+	/** Parse the input arguments and add them to the date, startingLat, startingLong, seed and droneType variables.
+	 *  Also constructs the fileName of the output files based on the arguments.	 * 
+	 * @param args - the arguments received from the user's input
+	 */
+    protected static void parseArgs(String args[])
+    {
+    	try {
+	    	date = args[2] + "/" + args[1] + "/" + args[0];
+	    	startingLat = Double.parseDouble(args[3]);
+	    	startingLong = Double.parseDouble(args[4]);
+	    	seed = Integer.parseInt(args[5]);
+	    	droneType = args[6];
+	    	fileName = args[6]+"-"+args[0]+"-"+args[1]+"-"+args[2];
+    	}
+    	catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+    		System.out.println("Invalid arguments! Please enter valid input arguments. \n" + "Example: 15 09 2019 55.944425 -3.188396 5678 stateless");
+    		System.exit(0);
+    	}
+    } 
+
+	/** Writes down the Drone's move in the text file.
+	 *  The moves are written one by one.
+	 * @param drone - the Drone that performed the move
+	 * @param direction - the Direction in which the Drone moved
+	 * @throws FileNotFoundException - if the text file is not found
+	 * @throws IOException - if the IO operation is interrupted
+	 */
     protected static void writeDroneMove(Drone drone, Direction direction) throws FileNotFoundException, IOException
     {
     	Position previousPos = drone.getLastMove();
@@ -31,8 +58,16 @@ public class InputOutputManager {
     			direction, currPos.latitude, currPos.longitude, drone.getCoins(), drone.getPower()));
     }
     
-    protected static void writeGeoJson(FeatureCollection feature_collection, Drone drone) throws FileNotFoundException, IOException
+    /** Draws the drone's movement on the Map and writes it in the GeoJson file
+     *  The entire movement is drawn at the end by accessing the drone's moveHistory.
+     * @param drone - the drone whose movement will be drawn
+     * @throws FileNotFoundException - if the output file is not found
+     * @throws IOException - if the IO operation is interrupted
+     */
+    protected static void writeGeoJson(Drone drone) throws FileNotFoundException, IOException
     {
+    	FeatureCollection feature_collection = Map.getFeatureCollection();
+    	
     	// Convert moveHistory to List<Point>
     	List<Point> points = new ArrayList<Point>();
     	for (Position position: drone.moveHistory)
@@ -54,16 +89,35 @@ public class InputOutputManager {
 		geojsonWriter.close();
     }
     
-	protected static void openTextWriter() throws FileNotFoundException, IOException
-	{
+	protected static void openTextWriter() throws FileNotFoundException, IOException {
 		textWriter = new PrintWriter(fileName+".txt", "UTF-8");
-		
 	}
 	
-	protected static void closeTextWriter() throws FileNotFoundException, IOException
-	{
+	protected static void closeTextWriter() throws FileNotFoundException, IOException {
 		textWriter.close();
 	}
-
 	
+    public static String getDate() {
+		return date;
+	}
+
+	public static void setDate(String date) {
+		InputOutputManager.date = date;
+	}
+
+	public static double getStartingLat() {
+		return startingLat;
+	}
+
+	public static double getStartingLong() {
+		return startingLong;
+	}
+
+	public static int getSeed() {
+		return seed;
+	}
+
+	public static String getDroneType() {
+		return droneType;
+	}
 }

@@ -17,17 +17,21 @@ public class Map {
 	private static FeatureCollection feature_collection = null;
 	private static List<Station> stations = new ArrayList<Station>();
 	
-	// This constructor initialises the feature_collection field by extracting the Geo-JSON from the specified URL
-	// and loads a List of all Stations from the map into the stations field
-	public static void Map(String urlString)
+	/** Extracts the GeoJSON from the specified url.
+	 *  The GeoJSON is parsed and loaded into a FeatureCollection. A list of all Stations is constructed.
+	 * @param urlString - the String corresponding to the url containing the GeoJson.
+	 */
+	public static void loadMap(String urlString)
 	{
-		loadMap(urlString);
+		loadFeatureCollection(urlString);
 		stations = loadStations();
 	}
 	
 	
-	// Loads the map from the specified URL into the feature_collection field
-	private static void loadMap(String mapString)
+	/** Connects to the specified URL and loads the FeatureCollection into the feature_collection field. 
+	 * @param mapString - the String corresponding to the url containing the GeoJson
+	 */
+	private static void loadFeatureCollection(String mapString)
 	{
 		// Read the URL
 		try 
@@ -48,13 +52,17 @@ public class Map {
 			feature_collection = FeatureCollection.fromJson(mapSource);
 		} catch ( java.net.MalformedURLException e) {
 			e.printStackTrace();
-			//System.out.println(e + " caught in Map.loadMap() \n" + "String is not a well-formed URL!");
+			System.out.println(e + " caught in Map.loadMap() \n" + "String is not a well-formed URL!");
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println(e + " caught in Map.loadMap() \n" + "Reading from the URL was interrupted!");
 		}
 	}
 	
-	// returns a List of all Station objects contained on the map
+	/** Returns a List containing all the Station objects on the Map.
+	 *  The information is read and parsed from the feature_collection.
+	 * @return a List containing all Stations on the map.
+	 */
 	private static List<Station> loadStations()
 	{
 		List<Station> stations = new ArrayList<Station>();
@@ -76,6 +84,11 @@ public class Map {
 		return stations;
 	}
 	
+	/** Updates the given Station after the drone charged.
+	 * @param station - the Station that will be updated.
+	 * @param coinsAmount - the amount in coins that was taken by the drone (negative value if the Station was positive, and vice-versa)
+	 * @param powerAmount - the amount in power that was taken by the drone (negative value if the Station was positive, and vice-versa)
+	 */
 	protected static void updateStation(Station station, double coinsAmount, double powerAmount)
 	{
 		Station theStation = stations.get(stations.indexOf(station));
@@ -83,17 +96,14 @@ public class Map {
 		theStation.takePower(powerAmount);		
 	}
 	
-	public static List<Station> getStations()
-	{
-		return new ArrayList(stations);
+	// Returns a copy of the Stations on the map. Editing this copy will not affect the real List of Stations.
+	public static List<Station> getStations() {
+		return new ArrayList<Station>(stations);
 	}
 	
-	// Returns a copy of the feature_collection
-	public static FeatureCollection getFeatureCollection()
-	{
+	// Returns a copy of the feature_collection. Editing this copy will not affect the real FeatureCollection.
+	public static FeatureCollection getFeatureCollection() {
 		return FeatureCollection.fromFeatures(feature_collection.features());
 	}
-	
 
-	
 }
