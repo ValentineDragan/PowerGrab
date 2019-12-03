@@ -5,10 +5,7 @@ import java.io.IOException;
 
 
 public class App 
-{
-	private static Drone theDrone;
-	
-	
+{	
 	/** The main method that controls the entire program. Control is split between: 
 	 * InputOutputManager: parses inputs and writes outputs
 	 * Map: Connects to the URL and parses the GeoJSON Features
@@ -19,7 +16,6 @@ public class App
     {	
     	// Parse Arguments
     	InputOutputManager.parseArgs(args);
-    	Position startingPos = new Position(InputOutputManager.getStartingLat(), InputOutputManager.getStartingLong());
     	
     	// Load Map
     	Map.loadMap("http://homepages.inf.ed.ac.uk/stg/powergrab/" + InputOutputManager.getDate() + "/powergrabmap.geojson");
@@ -32,26 +28,16 @@ public class App
     	//Debugger.printStationsByDistance(startingPos);
     	Debugger.printMaxCoins();
     	
-    	// Initialise Input/Output Manager and Drone initial parameters
+    	// Initialise Input/Output Manager
     	InputOutputManager.openTextWriter();
-    	if (InputOutputManager.getDroneType().equals("stateless"))
-    		theDrone = new StatelessDrone(startingPos, InputOutputManager.getSeed());
-    	else
-    		theDrone = new StatefulDrone(startingPos, InputOutputManager.getSeed());
-    	
-    	// Inspect starting position
-    	if (!theDrone.getCurrentPos().inPlayArea())
-    	{
-    		System.out.println("Error! Illeigal starting position!");
-    		System.exit(0);
-    	}
+
     	
     	// Initialise GameManager and start the game
-    	GameManager.initialise(theDrone);
+    	GameManager.initialise();
     	GameManager.startGame();
 		
 		// Write drone path to GeoJSON file; Close the Output file
-		InputOutputManager.writeGeoJson(theDrone);
+		InputOutputManager.writeGeoJson(GameManager.getTheDrone());
 		InputOutputManager.closeTextWriter();
     }   
 }

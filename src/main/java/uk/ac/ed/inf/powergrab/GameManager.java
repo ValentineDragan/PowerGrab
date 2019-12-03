@@ -8,9 +8,22 @@ public class GameManager {
 	private static Drone theDrone;
 	private static int moveNumber=0;
 	
-	// Assigns the Drone that the GameManager will oversee
-	public static void initialise(Drone drone) {
-		theDrone = drone;
+	// Initialise the Drone that the GameManager will oversee
+	public static void initialise() {
+		Position startingPos = new Position(InputOutputManager.getStartingLat(), InputOutputManager.getStartingLong());
+		
+		// Initialise Drone
+    	if (InputOutputManager.getDroneType().equals("stateless"))
+    		theDrone = new StatelessDrone(startingPos, InputOutputManager.getSeed());
+    	else
+    		theDrone = new StatefulDrone(startingPos, InputOutputManager.getSeed());
+    	
+    	// Inspect starting position
+    	if (!theDrone.getCurrentPos().inPlayArea())
+    	{
+    		System.out.println("Error! Illeigal starting position!");
+    		System.exit(0);
+    	}
 	}
 	
 	/** Starts the game. Each turn, the method will:
@@ -75,6 +88,9 @@ public class GameManager {
     		System.out.println("No station in range");
     }
    
+    public static Drone getTheDrone() {
+    	return theDrone;
+    }
     
     public static int getMoveNumber() {
     	return moveNumber;

@@ -22,8 +22,8 @@ public class InputOutputManager {
 	private static PrintWriter textWriter = null;
 	private static PrintWriter geojsonWriter;
 	
-	/** Parse the input arguments and add them to the date, startingLat, startingLong, seed and droneType variables.
-	 *  Also constructs the fileName of the output files based on the arguments.	 * 
+	/** Parse the input arguments and use them to initialise the class variables.
+	 *  Also constructs the fileName of the output files.	 * 
 	 * @param args - the arguments received from the user's input
 	 */
     protected static void parseArgs(String args[])
