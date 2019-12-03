@@ -8,14 +8,12 @@ public class Drone {
 	private Position currentPos;
 	private double power = 250.0;
 	private double coins = 0.0;
-	private int seed;
 	protected Random rnd;
 	
 	protected List<Position> moveHistory = new ArrayList<Position>();
 	
 	public Drone(Position startingPos, int seed) {
 		this.currentPos = startingPos;
-		this.seed = seed;
 		rnd = new Random(seed);
 		
 		moveHistory.add(startingPos);
@@ -64,10 +62,6 @@ public class Drone {
 
 	public double getCoins() {
 		return coins;
-	}
-
-	public int getSeed() {
-		return seed;
 	}
 	
 	public Position getLastMove() {
