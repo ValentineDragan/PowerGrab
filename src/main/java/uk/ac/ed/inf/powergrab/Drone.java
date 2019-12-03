@@ -24,13 +24,19 @@ public class Drone {
 	}
 	
 	/** Moves the drone in the specified direction and updates power and currentPos. Adds the move to the moveHistory list.
-	 * If the move is illegal (would force the Drone to go outside the play area), the program prints an error message and stops.
+	 * If the move is illegal (goes outside the play area, or it's not the Drone's turn to move) 
+	 * the program prints an error message and stops.
 	 * @param direction - the direction to move into
 	 */
 	protected void move(Direction direction)
 	{
+    	// Ensure the Drone is allowed to move
+    	if (!GameManager.getMoveAllowed()) {
+    		System.out.println("Illegal move! It's not the Drone's turn to move!");
+    		System.exit(0);
+    	}
     	// Ensure the direction is not taking the drone outside the playArea
-    	if (!currentPos.nextPosition(direction).inPlayArea()) {
+    	else if (!currentPos.nextPosition(direction).inPlayArea()) {
     		System.out.println("Illegal move! Drone would go outside the play area!");
         	System.exit(0);
     	}

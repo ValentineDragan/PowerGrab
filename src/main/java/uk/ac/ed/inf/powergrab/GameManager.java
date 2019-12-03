@@ -6,7 +6,8 @@ import java.io.IOException;
 public class GameManager {
 	
 	private static Drone theDrone;
-	private static int moveNumber=0;
+	private static boolean moveAllowed = false;
+	private static int moveNumber = 0;
 	
 	// Initialise the Drone that the GameManager will oversee
 	public static void initialise() {
@@ -47,7 +48,9 @@ public class GameManager {
 			System.out.println("Move " + moveNumber + ": " + nextMove);
 			
 			// Move the drone
+			moveAllowed = true;
 			theDrone.move(nextMove);
+			moveAllowed = false;
 			
 			// Charge from the nearest station, if within range
 			chargeDrone(theDrone);
@@ -94,5 +97,9 @@ public class GameManager {
     
     public static int getMoveNumber() {
     	return moveNumber;
+    }
+    
+    public static boolean getMoveAllowed() {
+    	return moveAllowed;
     }
 }
