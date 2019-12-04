@@ -10,7 +10,7 @@ public class Position {
 	public final double latitude;
 	public final double longitude;
 	
-	protected static final Map<Direction, ArrayList<Double>> directionChanges;
+	private static final Map<Direction, ArrayList<Double>> directionChanges;
 	
 	/**
 	 * Pre-compute (only once) the changes in latitude and longitude for each Direction of travel
