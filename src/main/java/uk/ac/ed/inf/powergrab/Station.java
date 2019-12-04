@@ -7,6 +7,7 @@ public class Station {
 	private String symbol;
 	private String color;
 	private Position position;
+	private String id;
 	
 	public Station(String id, double money, double power, String sym, String col, double lon, double lat)
 	{
@@ -18,7 +19,7 @@ public class Station {
 		position = new Position(lat, lon);
 	}
 	
-	private String id;
+
 	public String getId() {
 		return id;
 	}
