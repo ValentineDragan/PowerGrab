@@ -7,6 +7,7 @@ public class GameManager {
 	
 	private static Drone theDrone;
 	private static boolean moveAllowed = false;
+	private static boolean chargeAllowed = false;
 	private static int moveNumber = 0;
 	
 	// Initialise the Drone that the GameManager will oversee
@@ -53,7 +54,9 @@ public class GameManager {
 			moveAllowed = false;
 			
 			// Charge from the nearest station, if within range
+			chargeAllowed = true;
 			chargeDrone(theDrone);
+			chargeAllowed = false;
 			
 			// Write in the output file
 			InputOutputManager.writeDroneMove(theDrone, nextMove);		
@@ -101,5 +104,9 @@ public class GameManager {
     
     public static boolean getMoveAllowed() {
     	return moveAllowed;
+    }
+    
+    public static boolean getChargeAllowed() {
+    	return chargeAllowed;
     }
 }
