@@ -28,7 +28,7 @@ public class App
     	//Debugger.printStationsByDistance(startingPos);
     	Debugger.printMaxCoins();
     	
-    	// Initialise Input/Output Manager
+    	// Prepare output file
     	InputOutputManager.openTextWriter();
 
     	
