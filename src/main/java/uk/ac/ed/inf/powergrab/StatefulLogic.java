@@ -230,7 +230,7 @@ public class StatefulLogic implements DroneLogic {
 				return path;
 			}
 			// In case the algorithm gets stuck
-			if (searchIteration++ > 50)
+			if (searchIteration++ > 100)
 			{
 				System.out.println("Warning!!! Stuck in infinite loop. Returning random direction.");
 				Direction randomDir = getRandomDirection(startingPos); 
