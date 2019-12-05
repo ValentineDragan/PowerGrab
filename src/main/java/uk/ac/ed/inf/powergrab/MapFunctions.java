@@ -43,8 +43,9 @@ public class MapFunctions {
     	
     	for (Direction direction: Direction.values())
     	{
+    		Position move = origin.nextPosition(direction);
     		double dist = origin.nextPosition(direction).getDist(destination);
-    		if (dist <= 0.00025 && dist < bestDist)
+    		if (move.inRange(destination) && move.inPlayArea() && move.getDist(destination) < bestDist)
     		{
     			result = direction;
     			bestDist = dist;
