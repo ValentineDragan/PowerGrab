@@ -10,7 +10,7 @@ public class App
 	 * InputOutputManager: parses inputs and writes outputs
 	 * Map: Connects to the URL and parses the GeoJSON Features
 	 * GameManager: Controls the game rules and charges the drone
-	 * @param day month year latitude longitude random_seed droneType (e.g. 15 09 2019 55.944425 -3.188396 5678 stateful)
+	 * @param day month year latitude longitude random_seed droneType (e.g. 15 09 2019 55.944425 -3.188396 5678 stateful) 
 	 */
     public static void main( String[] args ) throws FileNotFoundException, IOException 
     {	
