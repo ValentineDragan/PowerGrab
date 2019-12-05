@@ -78,7 +78,7 @@ public class StatefulLogic implements DroneLogic {
 	}
 	
 	/** Plans all the drone's moves based on the Route that was computed at the earlier step.
-	 * The drone uses an A* algorithm to find the best path to the next Station in the Route. Repeat until all Stations have been visited.
+	 * The drone uses the getPathToNextStation() method in order to find the best path from Station to Station in the Route. 
 	 * After all the Stations have been visited, ZigZag the remaining moves until 250 moves are reached.
 	 * @param startingPos - the drone's starting position
 	 * @param route - the ordered ArrayList of Stations representing the order in which positive Stations will be visited
@@ -143,10 +143,17 @@ public class StatefulLogic implements DroneLogic {
 		}
 	}
 	
-	/*
-	 * A* search
-	 * https://www.geeksforgeeks.org/a-search-algorithm/
-	 * */
+	/**
+	 * Returns an ordered List of Directions representing the best path from the starting Position to the goal Station.
+	 * The method uses an A* Search Algorithm (link with description of the algorithm: www.geeksforgeeks.org/a-search-algorithm/)
+	 * and a Node class (created above) in order to represent nodes in the search graph.
+	 * 
+	 * The path returned is the shortest possible path between the startingPos and the goalStation, while also avoiding negative stations.
+	 * This method is used in the planAllMoves() method in order to get the path from Station to Station. 
+	 * @param startingPos - the starting Position of the Drone
+	 * @param goalStation - the Station that we want to reach
+	 * @return an ArrayList of Directions, representing the moves the Drone should execute in order to reach the goal Station from the starting Position.
+	 */
 	private ArrayList<Direction> getPathToNextStation(Position startingPos, Station goalStation)
 	{
 		// Initialise nodeMap - to store nodes that are going to be visited; alreadySelected - nodes that have been/will be visited
