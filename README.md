@@ -1,12 +1,10 @@
 # PowerGrab
 
-This document presents the design and implementation of the PowerGrab game framework, in which players (human or computer) compete in controlling a Drone around a Map in order to collect the most coins from randomly located Stations. A full description of the PowerGrab game, rules and specifications can be found in the 'PowerGrab project specifications.pdf'.
+This document presents the design and implementation of an Autonomous Agent (computer player) which plays against the human player in a game of PowerGrab. In the game, players complete in controlling a Drone around a Map in order to collect the most coins from randomly located Stations. A full description of the PowerGrab game, rules and specifications can be found in the 'PowerGrab project specifications.pdf'.
 
-Moreover, the document presents the implementation of two versions of an Autonomous Agent (computer player) which plays against the human player. The first version, referred to as Stateless Drone, is appropriate for playing against a novice human player. The second version, referred to as Stateful Drone, is appropriate for playing against an expert human player.
+The strategy used by the Autonomous Agent is a variant of the Travelling Salesman Problem using a Greedy nearest-station algorithm and an A* informed search. Further optimisation with an 2-Opt Swap algorithm is possible.
 
-The strategy used was a variant of the Travelling Salesman Problem using a Greedy nearest-station algorithm and an A* informed search. Further optimisation with an 2-Opt Swap algorithm is possible.
-
-The final result was that the Autonomous Agent developed managed to collect maximum (100%) of the coins on 99.5% of possible maps.
+The final result was that the Autonomous Agent managed to collect maximum (100%) of the coins on 99.5% of possible maps.
 
 ## Software Architecture Description
 
