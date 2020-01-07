@@ -1,5 +1,7 @@
 # PowerGrab
 
+This project was developed for the **Large Software Project course** at The University of Edinburgh.
+
 This project contains the design and implementation of an Autonomous Agent (computer player) which plays against the human player in a game of PowerGrab. In the game, players complete in controlling a Drone around a Map in order to collect the most coins from randomly located Stations. A full description of the PowerGrab game, rules and specifications can be found in the 'PowerGrab project specifications.pdf'.
 
 The strategy used by the Autonomous Agent is a variant of the Travelling Salesman Problem using a Greedy nearest-station algorithm and an A* informed search. Further optimisation with an 2-Opt Swap algorithm is possible. The final result was that the **Autonomous Agent managed to collect maximum (100%) of the coins on 99.5% of possible maps.**
