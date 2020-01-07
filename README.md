@@ -27,9 +27,9 @@ Using the Separation of Concerns design principle, I have identified 3 main area
 
 ### Description of Files
 
-* PowerGrab project specifications.pdf - contains the description of the game, task and scoring points
-* Project Report.pdf - contains the high and low level descriptions of each class, the AI Strategy used and the results obtained
-* src folder - contains the code of all the classes developed for the project (outlined in the software architecture description)
+* **PowerGrab project specifications.pdf** - contains the description of the game, task and scoring points
+* **Project Report.pdf** - contains the high and low level descriptions of each class, the AI Strategy used and the results obtained
+* **src folder** - contains the code of all the classes developed for the project (outlined in the software architecture description)
 
 ## Built With
 
